@@ -1,8 +1,31 @@
 {
   "name": "@axd-ai-sdk/core",
   "version": "0.0.1",
-  "description": "Transport-agnostic streaming chat core for axd-ai-sdk.",
+  "description": "Transport-agnostic streaming chat core — robust SSE parser, request-scoped state machine, first-class agent/tool/RAG metadata.",
   "license": "MIT",
+  "author": "axd-ai-sdk contributors",
+  "keywords": [
+    "ai",
+    "chat",
+    "streaming",
+    "sse",
+    "server-sent-events",
+    "llm",
+    "openai",
+    "anthropic",
+    "mcp",
+    "agent",
+    "tool-use"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axd-ai-sdk/axd-ai-sdk.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/axd-ai-sdk/axd-ai-sdk/issues"
+  },
+  "homepage": "https://github.com/axd-ai-sdk/axd-ai-sdk#readme",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +37,15 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
