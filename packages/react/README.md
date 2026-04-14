@@ -1,11 +1,11 @@
-# @axd-ai-sdk/react
+# @axe-ai-sdk/react
 
-React hooks for `@axd-ai-sdk/core`. Familiar `useChat` API.
+React hooks for `@axe-ai-sdk/core`. Familiar `useChat` API.
 
 ## Install
 
 ```bash
-pnpm add @axd-ai-sdk/core @axd-ai-sdk/react
+pnpm add @axe-ai-sdk/core @axe-ai-sdk/react
 ```
 
 Peer dependency: `react >= 18`.
@@ -13,7 +13,7 @@ Peer dependency: `react >= 18`.
 ## Quick start
 
 ```tsx
-import { useChat, type ChatTransport } from '@axd-ai-sdk/react'
+import { useChat, type ChatTransport } from '@axe-ai-sdk/react'
 import { createMyTransport } from './my-transport'
 
 const transport: ChatTransport = createMyTransport({ url: '/api/chat' })

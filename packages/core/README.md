@@ -1,11 +1,11 @@
-# @axd-ai-sdk/core
+# @axe-ai-sdk/core
 
 Transport-agnostic streaming chat core. Zero runtime dependencies.
 
 ## Install
 
 ```bash
-pnpm add @axd-ai-sdk/core
+pnpm add @axe-ai-sdk/core
 ```
 
 ## What you get
@@ -25,7 +25,7 @@ import {
   type ChatRequest,
   type StreamPart,
   readSSEStream,
-} from '@axd-ai-sdk/core'
+} from '@axe-ai-sdk/core'
 
 export function createMyTransport(opts: { url: string }): ChatTransport {
   return {
@@ -58,7 +58,7 @@ export function createMyTransport(opts: { url: string }): ChatTransport {
 ## Use ChatController directly (framework-agnostic)
 
 ```ts
-import { ChatController } from '@axd-ai-sdk/core'
+import { ChatController } from '@axe-ai-sdk/core'
 
 const controller = new ChatController({
   transport: createMyTransport({ url: '/api/chat' }),
@@ -71,7 +71,7 @@ await controller.submit('Hello')
 controller.stop()
 ```
 
-For React, use [`@axd-ai-sdk/react`](../react).
+For React, use [`@axe-ai-sdk/react`](../react).
 
 ## License
 

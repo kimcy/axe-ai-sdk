@@ -1,0 +1,54 @@
+---
+title: ChatController
+---
+
+# `ChatController`
+
+상태 기계와 요청 생명주기를 관리하는 프레임워크 독립 클래스입니다. React
+바깥에서도(Vue, Svelte, 바닐라 JS) 직접 사용할 수 있습니다.
+
+## 생성
+
+```ts
+import { ChatController } from '@axe-ai-sdk/core'
+
+const controller = new ChatController({
+  transport,
+  initialMessages: [],
+  idleTimeoutMs: 60_000,
+  onMessagesChange: (messages) => { /* ... */ },
+  onStatusChange: (status) => { /* ... */ },
+})
+```
+
+## 메서드
+
+| 메서드 | 설명 |
+| --- | --- |
+| `submit(content, options?)` | 사용자 메시지를 추가하고 전송 시작 |
+| `reload(options?)` | 마지막 어시스턴트 응답을 버리고 재생성 |
+| `stop()` | 진행 중인 요청 중단 (`aborted` 상태) |
+| `setMessages(messages)` | 메시지 배열 교체 (진행 중 요청 중단) |
+| `getMessages()` | 현재 메시지 스냅샷 |
+| `getStatus()` | 현재 컨트롤러 상태 |
+| `getError()` | 마지막 에러 (없으면 `null`) |
+
+## 이벤트
+
+생성자 옵션으로 다음 콜백을 받을 수 있습니다.
+
+- `onMessagesChange(messages)` — 메시지 배열이 바뀔 때마다 (매 델타마다) 호출
+- `onStatusChange(status)` — 컨트롤러 상태 전이 시 호출
+
+`useChat` 훅은 내부적으로 이 콜백들을 React `useState` 로 브리지합니다.
+
+## SubmitOptions
+
+```ts
+type SubmitOptions = {
+  metadata?: Record<string, unknown>
+}
+```
+
+`metadata` 는 그대로 `ChatRequest.metadata` 로 전달되어, 전송 구현체에서
+라우팅·추적·에이전트 선택 등에 활용할 수 있습니다.

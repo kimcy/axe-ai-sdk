@@ -1,0 +1,72 @@
+---
+title: 에이전트 & 툴 호출
+---
+
+# 에이전트 & 툴 호출
+
+axe-ai-sdk 는 에이전트 루프의 중간 상태를 UI 에 실시간으로 노출할 수 있도록
+`StreamPart` 에 전용 이벤트를 두고 있습니다.
+
+## thinking-step
+
+에이전트가 "지금 무엇을 하고 있는지" 를 보여줍니다.
+
+```ts
+yield {
+  type: 'thinking-step',
+  step: {
+    agent: 'planner',
+    status: 'running',
+    thought: '사용자 질문을 분해하는 중...',
+  },
+}
+
+// ...잠시 후
+
+yield {
+  type: 'thinking-step',
+  step: {
+    agent: 'planner',
+    status: 'complete',
+    thought: '계획 수립 완료',
+  },
+}
+```
+
+UI 에서는 `message.thinkingSteps` 배열로 접근합니다.
+
+```tsx
+{message.thinkingSteps?.map((step, i) => (
+  <div key={i}>
+    [{step.agent}] {step.thought}
+    {step.status === 'running' && <Spinner />}
+  </div>
+))}
+```
+
+## tool-call / tool-result
+
+툴 호출은 두 단계로 스트리밍됩니다.
+
+```ts
+yield {
+  type: 'tool-call',
+  toolCall: {
+    id: 'call_1',
+    name: 'search_web',
+    args: { query: '서울 날씨' },
+    status: 'running',
+  },
+}
+
+// 툴 실행 후
+
+yield {
+  type: 'tool-result',
+  id: 'call_1',
+  result: { temp: 18, condition: '흐림' },
+}
+```
+
+`tool-result` 는 동일한 `id` 를 가진 `tool-call` 을 찾아 `result` 와
+`status: 'complete'` 로 업데이트합니다.

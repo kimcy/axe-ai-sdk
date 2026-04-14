@@ -1,5 +1,5 @@
 {
-  "name": "axd-ai-sdk-monorepo",
+  "name": "axe-ai-sdk-monorepo",
   "private": true,
   "version": "0.0.0",
   "packageManager": "pnpm@9.0.0",
@@ -8,7 +8,11 @@
     "dev": "pnpm -r --parallel dev",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "docs:dev": "pnpm --filter @axe-ai-sdk/docs dev",
+    "docs:build": "pnpm --filter @axe-ai-sdk/docs build",
+    "docs:start": "pnpm --filter @axe-ai-sdk/docs start",
+    "docs:clean": "pnpm --filter @axe-ai-sdk/docs clean"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

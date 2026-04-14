@@ -1,0 +1,78 @@
+---
+title: 타입 레퍼런스
+---
+
+# 타입 레퍼런스
+
+## `Message`
+
+```ts
+type Message = {
+  id: string
+  role: 'user' | 'assistant' | 'system' | 'tool'
+  content: string
+  status: 'pending' | 'streaming' | 'done' | 'error' | 'aborted'
+  createdAt: number
+  updatedAt: number
+  error?: string
+  thinkingSteps?: ThinkingStep[]
+  toolCalls?: ToolCall[]
+  citations?: Citation[]
+  metadata?: Record<string, unknown>
+}
+```
+
+## `StreamPart`
+
+전송 구현체가 내보내는 이벤트 단위입니다.
+
+```ts
+type StreamPart =
+  | { type: 'message-start'; messageId?: string; role?: MessageRole }
+  | { type: 'text-delta'; delta: string }
+  | { type: 'thinking-step'; step: ThinkingStep }
+  | { type: 'tool-call'; toolCall: ToolCall }
+  | { type: 'tool-result'; id: string; result: unknown }
+  | { type: 'citation'; citation: Citation }
+  | { type: 'metadata'; data: Record<string, unknown> }
+  | { type: 'error'; error: string; code?: string }
+  | { type: 'finish'; reason?: 'stop' | 'length' | 'error' | 'abort' }
+```
+
+## `ThinkingStep`
+
+```ts
+type ThinkingStep = {
+  id?: string
+  agent: string
+  status: 'running' | 'complete'
+  thought?: string
+  startedAt?: number
+  completedAt?: number
+}
+```
+
+## `ToolCall`
+
+```ts
+type ToolCall = {
+  id: string
+  name: string
+  args?: unknown
+  result?: unknown
+  status: 'running' | 'complete' | 'error'
+  error?: string
+}
+```
+
+## `Citation`
+
+```ts
+type Citation = {
+  id: string
+  title?: string
+  url?: string
+  snippet?: string
+  source?: string
+}
+```

@@ -1,4 +1,4 @@
-# axd-ai-sdk
+# axe-ai-sdk
 
 React-first streaming chat SDK. Adapter-based, SSE/stream safe, agent/tool/RAG
 metadata first-class.
@@ -10,8 +10,27 @@ Inspired by Vercel's `ai` SDK but adapter-centric: bring your own backend
 
 | Package | Description |
 | --- | --- |
-| [`@axd-ai-sdk/core`](packages/core) | Transport-agnostic streaming, SSE parser, `ChatController`, errors, types |
-| [`@axd-ai-sdk/react`](packages/react) | `useChat` hook, optimistic UI, localStorage persistence |
+| [`@axe-ai-sdk/core`](packages/core) | Transport-agnostic streaming, SSE parser, `ChatController`, errors, types |
+| [`@axe-ai-sdk/react`](packages/react) | `useChat` hook, optimistic UI, localStorage persistence |
+| [`@axe-ai-sdk/docs`](apps/docs) | Nextra 4 기반 한국어 문서 사이트 |
+
+## Documentation
+
+한국어 문서 사이트는 [`apps/docs`](apps/docs) 에 있으며, 루트에서 바로 실행할 수 있습니다.
+
+```bash
+pnpm install       # 처음 한 번
+pnpm docs:dev      # 개발 서버 → http://localhost:3000
+pnpm docs:build    # 프로덕션 빌드
+pnpm docs:start    # 빌드 결과 실행
+pnpm docs:clean    # .next 정리
+```
+
+> `pnpm docs` 는 pnpm 내장 명령(패키지 npm 페이지 열기)과 충돌하므로
+> `pnpm docs:dev` 를 사용합니다.
+
+새 문서는 `apps/docs/content/docs/<섹션>/<slug>.mdx` 에 추가하고, 해당 폴더의
+`_meta.js` 에 slug 를 등록하면 사이드바에 자동 반영됩니다.
 
 ## Features
 
@@ -59,19 +78,19 @@ In the consumer's `package.json`:
 ```json
 {
   "dependencies": {
-    "@axd-ai-sdk/core": "file:../axd-ai-sdk/packages/core/axd-ai-sdk-core-0.0.1.tgz",
-    "@axd-ai-sdk/react": "file:../axd-ai-sdk/packages/react/axd-ai-sdk-react-0.0.1.tgz"
+    "@axe-ai-sdk/core": "file:../axe-ai-sdk/packages/core/axe-ai-sdk-core-0.0.1.tgz",
+    "@axe-ai-sdk/react": "file:../axe-ai-sdk/packages/react/axe-ai-sdk-react-0.0.1.tgz"
   },
   "pnpm": {
     "overrides": {
-      "@axd-ai-sdk/core": "file:../axd-ai-sdk/packages/core/axd-ai-sdk-core-0.0.1.tgz"
+      "@axe-ai-sdk/core": "file:../axe-ai-sdk/packages/core/axe-ai-sdk-core-0.0.1.tgz"
     }
   }
 }
 ```
 
-The `pnpm.overrides` entry is needed because `@axd-ai-sdk/react` depends on
-`@axd-ai-sdk/core` via `workspace:*`, which pnpm rewrites to `0.0.1` on pack
+The `pnpm.overrides` entry is needed because `@axe-ai-sdk/react` depends on
+`@axe-ai-sdk/core` via `workspace:*`, which pnpm rewrites to `0.0.1` on pack
 and then tries to fetch from the registry. The override forces it to use the
 local tarball.
 
@@ -80,19 +99,19 @@ local tarball.
 ```json
 {
   "dependencies": {
-    "@axd-ai-sdk/core": "link:../axd-ai-sdk/packages/core",
-    "@axd-ai-sdk/react": "link:../axd-ai-sdk/packages/react"
+    "@axe-ai-sdk/core": "link:../axe-ai-sdk/packages/core",
+    "@axe-ai-sdk/react": "link:../axe-ai-sdk/packages/react"
   }
 }
 ```
 
-Run `pnpm -r --filter @axd-ai-sdk/* dev` in this repo for watch-mode rebuilds.
+Run `pnpm -r --filter @axe-ai-sdk/* dev` in this repo for watch-mode rebuilds.
 The consumer picks up changes as soon as `dist/` updates.
 
 ## Quick example
 
 ```tsx
-import { useChat } from '@axd-ai-sdk/react'
+import { useChat } from '@axe-ai-sdk/react'
 import { createMyTransport } from './my-transport'
 
 const transport = createMyTransport({ url: '/api/chat' })

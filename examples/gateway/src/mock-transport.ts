@@ -2,7 +2,7 @@ import {
   type ChatRequest,
   type ChatTransport,
   type StreamPart,
-} from '@axd-ai-sdk/core'
+} from '@axe-ai-sdk/core'
 
 /**
  * A purely client-side transport that simulates a streaming LLM response.
@@ -60,7 +60,7 @@ export function createMockTransport(): ChatTransport {
           id: 'doc-1',
           title: 'Getting started',
           url: 'https://example.com/docs/getting-started',
-          snippet: 'axd-ai-sdk is a streaming chat SDK ...',
+          snippet: 'axe-ai-sdk is a streaming chat SDK ...',
         },
       }
       yield {
@@ -95,7 +95,7 @@ export function createMockTransport(): ChatTransport {
 
 function buildReply(userContent: string): string {
   if (!userContent) return 'Please ask something.'
-  return `You said: "${userContent}". This is a mock streaming reply from the axd-ai-sdk example. Try sending a message containing "fail" to see an error path, or "slow" to see a slower delta cadence.`
+  return `You said: "${userContent}". This is a mock streaming reply from the axe-ai-sdk example. Try sending a message containing "fail" to see an error path, or "slow" to see a slower delta cadence.`
 }
 
 function lastUserContent(request: ChatRequest): string {

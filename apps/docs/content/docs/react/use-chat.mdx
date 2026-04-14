@@ -1,0 +1,72 @@
+---
+title: useChat
+---
+
+# `useChat`
+
+React 에서 챗 UI 를 만들기 위한 기본 훅입니다. `ChatController` 를 내부적으로
+유지하며, 상태를 React 렌더 트리로 브리지합니다.
+
+## 사용법
+
+```tsx
+const {
+  messages,
+  input,
+  setInput,
+  handleInputChange,
+  handleSubmit,
+  submit,
+  stop,
+  reload,
+  setMessages,
+  clear,
+  status,
+  isStreaming,
+  error,
+} = useChat({
+  transport,
+  initialMessages: [],
+  idleTimeoutMs: 60_000,
+  persistence: { key: 'chat-demo' },
+  onError: (err) => console.error(err),
+  onFinish: (message) => console.log('완료:', message),
+})
+```
+
+## 옵션
+
+| 옵션 | 타입 | 설명 |
+| --- | --- | --- |
+| `transport` | `ChatTransport` | **필수.** 백엔드 어댑터 |
+| `initialMessages` | `Message[]` | 초기 메시지 이력 |
+| `idleTimeoutMs` | `number` | 청크 간 최대 간격 (기본 60000) |
+| `persistence` | `PersistenceOptions` | localStorage 영속화 설정 |
+| `onError` | `(err) => void` | 에러 발생 시 |
+| `onFinish` | `(message) => void` | 어시스턴트 메시지가 `done`/`error` 로 끝날 때 |
+
+## 반환값
+
+| 이름 | 설명 |
+| --- | --- |
+| `messages` | 현재 메시지 배열 |
+| `input` / `setInput` / `handleInputChange` | 입력 상태 |
+| `handleSubmit(e?, options?)` | `<form onSubmit>` 핸들러 |
+| `submit(content, options?)` | 입력값과 무관하게 메시지 전송 |
+| `stop()` | 진행 중 요청 중단 |
+| `reload(options?)` | 마지막 어시스턴트 응답 재생성 |
+| `setMessages(next)` | 메시지 강제 교체 |
+| `clear()` | 메시지 비우기 + 영속화 삭제 |
+| `status` | `'idle' \| 'submitting' \| 'streaming' \| 'error'` |
+| `isStreaming` | `submitting` 또는 `streaming` 일 때 `true` |
+| `error` | 현재 에러 (`Error \| null`) |
+
+## 메타데이터 전달
+
+```tsx
+submit('한국의 수도는?', {
+  metadata: { agent: 'geography', userId: 'u-123' },
+})
+```
+
+이 `metadata` 는 `ChatRequest.metadata` 로 전송 구현체에 전달됩니다.

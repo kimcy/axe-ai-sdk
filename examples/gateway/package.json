@@ -1,5 +1,5 @@
 {
-  "name": "@axd-ai-sdk/example-gateway",
+  "name": "@axe-ai-sdk/example-gateway",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@axd-ai-sdk/core": "workspace:*",
-    "@axd-ai-sdk/react": "workspace:*",
+    "@axe-ai-sdk/core": "workspace:*",
+    "@axe-ai-sdk/react": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

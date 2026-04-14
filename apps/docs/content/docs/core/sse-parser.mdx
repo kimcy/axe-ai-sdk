@@ -1,0 +1,37 @@
+---
+title: parseSSE
+---
+
+# `parseSSE`
+
+표준 `ReadableStream<Uint8Array>` 를 Server-Sent Events 이터러블로 변환합니다.
+
+```ts
+import { parseSSE } from '@axe-ai-sdk/core'
+
+const response = await fetch(url, { signal })
+for await (const event of parseSSE(response.body!)) {
+  // event: { event?: string; data: string; id?: string; retry?: number }
+  console.log(event.data)
+}
+```
+
+## 왜 직접 구현했는가?
+
+브라우저 내장 `EventSource` 는 다음 한계가 있습니다.
+
+- `POST` 지원 불가 (챗 요청은 바디가 필수)
+- 커스텀 헤더(예: `Authorization`) 지정 불가
+- `AbortController` 연동 어려움
+
+그래서 `fetch` + 직접 파서가 사실상 표준입니다. `parseSSE` 는 그 파서를
+가장 까다로운 케이스까지 안전하게 처리하도록 구현되어 있습니다.
+
+## 처리하는 엣지 케이스
+
+- CRLF (`\r\n`) / LF (`\n`) 모두 허용
+- 멀티라인 `data:` 를 `\n` 으로 조인
+- 주석 라인 (`:` 로 시작) 은 무시
+- 빈 라인을 이벤트 구분자로 인식
+- UTF-8 멀티바이트 문자가 청크 경계에서 쪼개져도 깨지지 않음
+- 마지막 이벤트가 개행 없이 끝나도 플러시

@@ -11,4 +11,4 @@ export type {
   ToolCall,
   Citation,
   ControllerStatus,
-} from '@axd-ai-sdk/core'
+} from '@axe-ai-sdk/core'

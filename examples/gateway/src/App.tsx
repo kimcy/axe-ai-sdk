@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useChat } from '@axd-ai-sdk/react'
+import { useChat } from '@axe-ai-sdk/react'
 import { createMockTransport } from './mock-transport'
 
 export function App() {
@@ -19,13 +19,13 @@ export function App() {
   } = useChat({
     transport,
     idleTimeoutMs: 15_000,
-    persistence: { key: 'axd-ai-sdk-example' },
+    persistence: { key: 'axe-ai-sdk-example' },
   })
 
   return (
     <div className='app'>
       <header>
-        <h1>axd-ai-sdk example</h1>
+        <h1>axe-ai-sdk example</h1>
         <div className='status'>
           status: <code>{status}</code>
           {error && <span className='error'> · {error.message}</span>}

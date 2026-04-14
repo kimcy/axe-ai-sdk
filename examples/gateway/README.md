@@ -1,6 +1,6 @@
-# @axd-ai-sdk example — gateway
+# @axe-ai-sdk example — gateway
 
-Runnable Vite + React example demonstrating `@axd-ai-sdk/react` with a
+Runnable Vite + React example demonstrating `@axe-ai-sdk/react` with a
 mock streaming transport (no backend required).
 
 ## Run
@@ -9,8 +9,8 @@ From the repo root:
 
 ```bash
 pnpm install
-pnpm -r --filter @axd-ai-sdk/* build
-pnpm --filter @axd-ai-sdk/example-gateway dev
+pnpm -r --filter @axe-ai-sdk/* build
+pnpm --filter @axe-ai-sdk/example-gateway dev
 ```
 
 Open the printed localhost URL.

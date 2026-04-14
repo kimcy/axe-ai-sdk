@@ -13,7 +13,7 @@ import {
   type ControllerStatus,
   type Message,
   type SubmitOptions,
-} from '@axd-ai-sdk/core'
+} from '@axe-ai-sdk/core'
 import {
   type PersistenceOptions,
   createStoragePersistence,

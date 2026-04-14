@@ -8,5 +8,5 @@ export default defineConfig({
   clean: true,
   target: 'es2022',
   treeshake: true,
-  external: ['react', '@axd-ai-sdk/core'],
+  external: ['react', '@axe-ai-sdk/core'],
 })

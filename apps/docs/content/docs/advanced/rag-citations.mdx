@@ -1,0 +1,46 @@
+---
+title: RAG & 인용
+---
+
+# RAG & 인용
+
+RAG(Retrieval-Augmented Generation) 파이프라인에서 검색된 문서를 UI 에
+표시하려면 `citation` 스트림 파트를 사용합니다.
+
+```ts
+yield {
+  type: 'citation',
+  citation: {
+    id: 'doc_1',
+    title: '한국 여름 기후 보고서',
+    url: 'https://example.com/report',
+    snippet: '서울의 평균 여름 기온은 26도이며...',
+    source: 'KMA',
+  },
+}
+```
+
+UI 에서:
+
+```tsx
+{message.citations && message.citations.length > 0 && (
+  <aside>
+    <h4>참고 자료</h4>
+    <ol>
+      {message.citations.map((c) => (
+        <li key={c.id}>
+          <a href={c.url} target="_blank" rel="noreferrer">
+            {c.title ?? c.url}
+          </a>
+          {c.snippet && <p>{c.snippet}</p>}
+        </li>
+      ))}
+    </ol>
+  </aside>
+)}
+```
+
+## 인용 표시 패턴
+
+텍스트 델타에 인라인 마커(예: `[1]`)를 포함시키고, 컴포넌트에서 `citations`
+배열과 매칭해 호버 툴팁·풋노트 링크를 렌더링할 수 있습니다.

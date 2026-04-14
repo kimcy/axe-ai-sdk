@@ -1,0 +1,177 @@
+---
+title: 시작하기
+description: React 우선 스트리밍 챗 SDK. 어댑터 기반, SSE 안전, 에이전트·툴·RAG 메타데이터 일급 지원.
+---
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+# axe-ai-sdk
+
+React 애플리케이션에서 LLM 스트리밍 챗 UI를 만들기 위한 SDK 입니다. 전송
+(transport) 계층이 프로토콜과 분리되어 있어, 어떤 백엔드를 쓰든 동일한 React
+훅과 상태 기계를 사용할 수 있습니다.
+
+<Callout type="info">
+  Vercel 의 `ai` SDK 에서 영감을 받았지만 **어댑터 중심** 설계입니다.
+  백엔드(OpenAI, Anthropic, MCP, 커스텀 게이트웨이)는 `ChatTransport` 하나만
+  구현하면 됩니다.
+</Callout>
+
+## 왜 또 다른 챗 SDK 인가?
+
+기존 챗 SDK 들은 보통 특정 백엔드(예: OpenAI 호환 API)나 특정 프레임워크와
+강하게 결합되어 있습니다. 이 SDK 는 다음 문제를 해결합니다.
+
+- **백엔드 종속 탈피** — `ChatTransport` 인터페이스 하나만 구현하면 OpenAI,
+  Anthropic, MCP, 사내 게이트웨이 등 어떤 백엔드도 꽂을 수 있습니다.
+- **스트림 안정성** — SSE 파서가 CRLF/LF, 멀티라인 `data:`, 코멘트, 임의
+  바이트 경계에서 잘린 청크, UTF-8 스트림을 모두 안전하게 처리합니다.
+- **요청 격리** — 요청별 `AbortController` 로 동시에 여러 메시지가 발사되어도
+  스트림이 뒤섞이지 않습니다.
+- **에이전트 / 툴 / RAG 일급 지원** — `StreamPart` 유니언이 `thinking-step`,
+  `tool-call`, `tool-result`, `citation`, 임의 `metadata` 를 직접 전달합니다.
+
+## 핵심 개념
+
+| 개념 | 설명 |
+| --- | --- |
+| `ChatTransport` | 요청을 받아 `StreamPart` 비동기 이터러블을 반환하는 어댑터 |
+| `ChatController` | 메시지 상태 기계. 전송 / 중단 / 재전송 / 타임아웃 관리 |
+| `StreamPart` | 전송 계층이 내보내는 이벤트 단위 (텍스트 델타, 툴 호출 등) |
+| `Message` | 역할, 상태(`pending`·`streaming`·`done`·`error`·`aborted`), 메타데이터를 가진 메시지 |
+| `useChat` | React 훅. 컨트롤러를 래핑해 입력·메시지·상태를 제공 |
+
+## 패키지 구성
+
+- [`@axe-ai-sdk/core`](/docs/core/overview) — 전송 계층 독립 스트리밍, SSE 파서,
+  `ChatController`, 에러, 타입. 런타임 의존성 없음.
+- [`@axe-ai-sdk/react`](/docs/react/use-chat) — `useChat` 훅, 낙관적 UI,
+  localStorage 영속화. React 19 피어 의존성.
+
+---
+
+## 시작하기
+
+### 설치
+
+<Tabs items={['pnpm', 'npm', 'yarn']}>
+  <Tabs.Tab>
+    ```bash
+    pnpm add @axe-ai-sdk/core @axe-ai-sdk/react
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    npm install @axe-ai-sdk/core @axe-ai-sdk/react
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    yarn add @axe-ai-sdk/core @axe-ai-sdk/react
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+`react >= 18` 이 피어 의존성으로 필요합니다.
+
+### 단계별 따라하기
+
+<Steps>
+
+#### 전송 계층(Transport) 작성
+
+모든 백엔드 통신은 `ChatTransport` 어댑터로 추상화됩니다. 최소 구현은
+`send(request)` 하나이며, `StreamPart` 비동기 이터러블을 반환합니다.
+
+```ts filename="my-transport.ts"
+import type { ChatTransport, ChatRequest, StreamPart } from '@axe-ai-sdk/core'
+import { parseSSE } from '@axe-ai-sdk/core'
+
+export function createMyTransport({ url }: { url: string }): ChatTransport {
+  return {
+    async *send(request: ChatRequest): AsyncIterable<StreamPart> {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: request.messages }),
+        signal: request.signal,
+      })
+
+      if (!response.body) throw new Error('No response body')
+
+      for await (const event of parseSSE(response.body)) {
+        if (event.data === '[DONE]') {
+          yield { type: 'finish', reason: 'stop' }
+          return
+        }
+        const parsed = JSON.parse(event.data)
+        yield { type: 'text-delta', delta: parsed.delta }
+      }
+    },
+  }
+}
+```
+
+#### `useChat` 훅 연결
+
+```tsx filename="chat.tsx"
+'use client'
+import { useChat } from '@axe-ai-sdk/react'
+import { createMyTransport } from './my-transport'
+
+const transport = createMyTransport({ url: '/api/chat' })
+
+export function Chat() {
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isStreaming,
+    stop,
+    error,
+  } = useChat({
+    transport,
+    persistence: { key: 'chat-demo' },
+  })
+
+  return (
+    <div>
+      {messages.map((m) => (
+        <div key={m.id} data-status={m.status}>
+          <strong>{m.role}</strong>: {m.content}
+        </div>
+      ))}
+
+      {error && <div role="alert">에러: {error.message}</div>}
+
+      <form onSubmit={handleSubmit}>
+        <input value={input} onChange={handleInputChange} />
+        {isStreaming ? (
+          <button type="button" onClick={stop}>중지</button>
+        ) : (
+          <button type="submit">전송</button>
+        )}
+      </form>
+    </div>
+  )
+}
+```
+
+#### 서버 엔드포인트 준비
+
+이 SDK 는 **클라이언트 측**만 다룹니다. 서버는 SSE 혹은 다른 스트리밍 응답을
+반환할 수만 있으면 됩니다. Next.js App Router 예시는
+[예제 디렉터리](https://github.com/kimcy/axe-ai-sdk/tree/main/examples/gateway)
+를 참고하세요.
+
+</Steps>
+
+---
+
+## 다음 단계
+
+- [기본 개념](/docs/foundations/overview) — 전송 계층, 스트리밍, 상태 기계
+- [`@axe-ai-sdk/core`](/docs/core/overview) — `ChatController`, `parseSSE`, 타입 레퍼런스
+- [`@axe-ai-sdk/react`](/docs/react/use-chat) — `useChat` API, 영속화, 낙관적 UI
+- [고급](/docs/advanced/agents-tools) — 에이전트·툴 호출, RAG 인용, 에러 처리

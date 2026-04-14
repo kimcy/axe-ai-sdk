@@ -1,0 +1,40 @@
+---
+title: 에러
+---
+
+# 에러
+
+코어 패키지는 에러를 구분하기 위해 전용 클래스를 제공합니다.
+
+```ts
+import { ChatError, TransportError, IdleTimeoutError } from '@axe-ai-sdk/core'
+```
+
+## `ChatError`
+
+모든 SDK 에러의 베이스 클래스. `instanceof ChatError` 로 "SDK 가 던진 에러인가"
+를 판단할 수 있습니다.
+
+## `TransportError`
+
+전송 계층(네트워크, HTTP 상태 코드, 파싱)에서 발생한 에러. `cause` 필드에
+원래 에러가 붙습니다.
+
+## `IdleTimeoutError`
+
+아이들 타임아웃이 만료되어 요청이 중단되었을 때 발생합니다. `ChatController`
+가 메시지를 `error` 상태로 전이시키고 `useChat` 의 `error` 값으로 노출합니다.
+
+## 처리 예시
+
+```tsx
+const { error } = useChat({ transport })
+
+if (error instanceof IdleTimeoutError) {
+  return <div>응답이 너무 오래 걸립니다. 다시 시도해주세요.</div>
+}
+
+if (error instanceof TransportError) {
+  return <div>서버 연결 실패: {error.message}</div>
+}
+```

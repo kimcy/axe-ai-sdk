@@ -1,12 +1,12 @@
 # Changelog
 
-All notable changes to `@axd-ai-sdk/*` packages are documented here.
+All notable changes to `@axe-ai-sdk/*` packages are documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.0.1] - 2026-04-14
 
-### @axd-ai-sdk/core
+### @axe-ai-sdk/core
 
 Initial release.
 
@@ -29,7 +29,7 @@ Initial release.
   - `submit(content, { metadata })`, `reload()`, `stop()`.
 - Errors: `ChatError`, `AbortedError`, `TimeoutError`, `isAbortError()`.
 
-### @axd-ai-sdk/react
+### @axe-ai-sdk/react
 
 Initial release.
 

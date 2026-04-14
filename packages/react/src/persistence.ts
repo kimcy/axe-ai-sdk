@@ -1,4 +1,4 @@
-import { type Message } from '@axd-ai-sdk/core'
+import { type Message } from '@axe-ai-sdk/core'
 
 export type PersistenceOptions = {
   key: string
