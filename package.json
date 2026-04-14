@@ -12,7 +12,10 @@
     "docs:dev": "pnpm --filter @axe-ai-sdk/docs dev",
     "docs:build": "pnpm --filter @axe-ai-sdk/docs build",
     "docs:start": "pnpm --filter @axe-ai-sdk/docs start",
-    "docs:clean": "pnpm --filter @axe-ai-sdk/docs clean"
+    "docs:clean": "pnpm --filter @axe-ai-sdk/docs clean",
+    "example:dev": "pnpm --filter @axe-ai-sdk/example-gateway dev",
+    "example:build": "pnpm --filter @axe-ai-sdk/example-gateway build",
+    "example:preview": "pnpm --filter @axe-ai-sdk/example-gateway preview"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

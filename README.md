@@ -29,6 +29,17 @@ pnpm docs:clean    # .next 정리
 > `pnpm docs` 는 pnpm 내장 명령(패키지 npm 페이지 열기)과 충돌하므로
 > `pnpm docs:dev` 를 사용합니다.
 
+## Example (gateway)
+
+Vite 기반 예제는 [`examples/gateway`](examples/gateway) 에 있습니다.
+
+```bash
+pnpm -r --filter './packages/*' build   # 패키지 먼저 빌드 (최초 1회)
+pnpm example:dev                         # 개발 서버 → http://localhost:5173
+pnpm example:build                       # 프로덕션 빌드
+pnpm example:preview                     # 빌드 결과 미리보기
+```
+
 새 문서는 `apps/docs/content/docs/<섹션>/<slug>.mdx` 에 추가하고, 해당 폴더의
 `_meta.js` 에 slug 를 등록하면 사이드바에 자동 반영됩니다.
 
