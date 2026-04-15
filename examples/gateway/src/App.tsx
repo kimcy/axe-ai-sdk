@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   useChat,
   Markdown,
@@ -23,8 +23,7 @@ export function App() {
 
         // [A] env 폴백 포함 (dev 편의용, 현재 활성)
         //   VITE_GATEWAY_TOKEN 이 있으면 우선, 없으면 쿠키에서 읽음
-        headers: () =>
-          bearer(import.meta.env.VITE_GATEWAY_TOKEN),
+        headers: () => bearer(import.meta.env.VITE_GATEWAY_TOKEN),
 
         // [B] 쿠키만 쓰는 운영용 — 위 [A] 를 지우고 이 한 줄로 교체
         // headers: bearerFromCookie(GATEWAY_TOKEN_COOKIE),
@@ -37,32 +36,55 @@ export function App() {
     []
   )
 
+  const [input, setInput] = useState('')
+  const [error, setError] = useState<Error | null>(null)
+
   const {
     messages,
-    input,
-    handleInputChange,
-    handleSubmit,
+    conversationId,
     isStreaming,
-    status,
-    error,
+    submit,
     stop,
-    reload,
-    clear,
+    resetChat,
   } = useChat({
     transport,
-    idleTimeoutMs: 65_000,
+    conversationIdStorageKey: 'axe-ai-sdk-example-cid',
     persistence: { key: 'axe-ai-sdk-example' },
+    idleTimeoutMs: 65_000,
+    onError: (e) => setError(e),
+    onFinish: () => setError(null),
   })
+
+  const handleSubmit = (e: React.SyntheticEvent) => {
+    e.preventDefault()
+    const content = input.trim()
+    if (!content) return
+    setError(null)
+    submit(content)
+    setInput('')
+  }
+
+  const handleReset = () => {
+    setError(null)
+    resetChat()
+  }
 
   return (
     <div className='app'>
       <header>
         <h1>axe-ai-sdk example</h1>
         <div className='status'>
-          status: <code>{status}</code>
+          {isStreaming ? (
+            <code>streaming</code>
+          ) : (
+            <code>idle</code>
+          )}
+          {conversationId && (
+            <span className='cid'> · cid: <code>{conversationId.slice(0, 8)}</code></span>
+          )}
           {error && <span className='error'> · {error.message}</span>}
-          <button className='clear' onClick={clear} disabled={isStreaming}>
-            Clear
+          <button className='clear' onClick={handleReset} disabled={isStreaming}>
+            Reset
           </button>
         </div>
       </header>
@@ -70,8 +92,9 @@ export function App() {
       <ul className='messages'>
         {messages.length === 0 && (
           <li className='hint'>
-            Try typing a message. Include the word <code>fail</code> to see the
-            error path, or <code>slow</code> to slow down the stream.
+            Type a message to start chatting with the gateway. The
+            conversation id is persisted across reloads — hit{' '}
+            <code>Reset</code> to start a new session.
           </li>
         )}
         {messages.map((m) => (
@@ -116,7 +139,7 @@ export function App() {
       <form onSubmit={handleSubmit} className='composer'>
         <input
           value={input}
-          onChange={handleInputChange}
+          onChange={(e) => setInput(e.target.value)}
           placeholder='Type a message...'
           disabled={isStreaming}
         />
@@ -127,11 +150,6 @@ export function App() {
         ) : (
           <button type='submit' disabled={!input.trim()}>
             Send
-          </button>
-        )}
-        {status === 'error' && (
-          <button type='button' onClick={() => reload()}>
-            Retry
           </button>
         )}
       </form>

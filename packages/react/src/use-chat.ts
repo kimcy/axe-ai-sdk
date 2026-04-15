@@ -1,6 +1,8 @@
 import {
   type ChangeEvent,
+  type Dispatch,
   type FormEvent,
+  type SetStateAction,
   useCallback,
   useEffect,
   useMemo,
@@ -19,17 +21,23 @@ import {
   createStoragePersistence,
 } from './persistence'
 
-export type UseChatOptions = {
+type TransportWithReset = ChatTransport & { reset?: () => void }
+
+export type UseChatOptions<TMessage extends Message = Message> = {
   transport: ChatTransport
-  initialMessages?: Message[]
+  initialMessages?: TMessage[]
   idleTimeoutMs?: number
   persistence?: PersistenceOptions
+  /** localStorage key used to persist the conversation id. */
+  conversationIdStorageKey?: string
+  /** Custom Storage (defaults to window.localStorage). */
+  storage?: Storage
   onError?: (error: Error) => void
-  onFinish?: (message: Message) => void
+  onFinish?: (message: TMessage) => void
 }
 
-export type UseChatReturn = {
-  messages: Message[]
+export type UseChatReturn<TMessage extends Message = Message> = {
+  messages: TMessage[]
   input: string
   setInput: (value: string) => void
   handleInputChange: (
@@ -39,14 +47,20 @@ export type UseChatReturn = {
   submit: (content: string, options?: SubmitOptions) => void
   stop: () => void
   reload: (options?: Pick<SubmitOptions, 'metadata'>) => void
-  setMessages: (messages: Message[]) => void
+  setMessages: Dispatch<SetStateAction<TMessage[]>>
   clear: () => void
+  /** Clears messages, resets conversation id + transport state, removes storage entry. */
+  resetChat: () => void
+  conversationId: string | null
+  setConversationId: (id: string | null) => void
   status: ControllerStatus
   isStreaming: boolean
   error: Error | null
 }
 
-export function useChat(options: UseChatOptions): UseChatReturn {
+export function useChat<TMessage extends Message = Message>(
+  options: UseChatOptions<TMessage>
+): UseChatReturn<TMessage> {
   const optsRef = useRef(options)
   optsRef.current = options
 
@@ -58,13 +72,24 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     [options.persistence?.key]
   )
 
-  const [messages, setMessagesState] = useState<Message[]>(() => {
-    const persisted = persistence?.load()
+  const resolvedStorage = useMemo<Storage | null>(() => {
+    if (options.storage) return options.storage
+    if (typeof window === 'undefined') return null
+    return window.localStorage
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options.storage])
+
+  const [messages, setMessagesState] = useState<TMessage[]>(() => {
+    const persisted = persistence?.load() as TMessage[] | null
     return persisted ?? options.initialMessages ?? []
   })
   const [status, setStatus] = useState<ControllerStatus>('idle')
   const [error, setError] = useState<Error | null>(null)
   const [input, setInput] = useState('')
+  const [conversationId, setConversationId] = useState<string | null>(() => {
+    if (!options.conversationIdStorageKey || !resolvedStorage) return null
+    return resolvedStorage.getItem(options.conversationIdStorageKey)
+  })
 
   const controllerRef = useRef<ChatController | null>(null)
 
@@ -72,11 +97,12 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     controllerRef.current = new ChatController({
       transport: options.transport,
       idleTimeoutMs: options.idleTimeoutMs,
-      initialMessages: messages,
+      initialMessages: messages as Message[],
       onMessagesChange: (next) => {
-        setMessagesState(next)
+        const typed = next as TMessage[]
+        setMessagesState(typed)
         persistence?.save(next)
-        const last = next[next.length - 1]
+        const last = typed[typed.length - 1]
         if (
           last &&
           last.role === 'assistant' &&
@@ -103,6 +129,34 @@ export function useChat(options: UseChatOptions): UseChatReturn {
       controllerRef.current?.stop()
     }
   }, [])
+
+  const latestGatewayConversationId = (() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i]
+      if (!m || m.role !== 'assistant') continue
+      const cid = (m.metadata as { conversationId?: unknown } | undefined)
+        ?.conversationId
+      return typeof cid === 'string' ? cid : null
+    }
+    return null
+  })()
+
+  if (
+    latestGatewayConversationId &&
+    latestGatewayConversationId !== conversationId
+  ) {
+    setConversationId(latestGatewayConversationId)
+  }
+
+  useEffect(() => {
+    const key = optsRef.current.conversationIdStorageKey
+    if (!key || !resolvedStorage) return
+    if (conversationId) {
+      resolvedStorage.setItem(key, conversationId)
+    } else {
+      resolvedStorage.removeItem(key)
+    }
+  }, [conversationId, resolvedStorage])
 
   const submit = useCallback((content: string, options?: SubmitOptions) => {
     const trimmed = content.trim()
@@ -138,9 +192,19 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     []
   )
 
-  const setMessages = useCallback(
-    (next: Message[]) => {
-      controllerRef.current?.setMessages(next)
+  const messagesRef = useRef(messages)
+  useEffect(() => {
+    messagesRef.current = messages
+  }, [messages])
+
+  const setMessages: Dispatch<SetStateAction<TMessage[]>> = useCallback(
+    (updater) => {
+      const prev = messagesRef.current
+      const next =
+        typeof updater === 'function'
+          ? (updater as (p: TMessage[]) => TMessage[])(prev)
+          : updater
+      controllerRef.current?.setMessages(next as Message[])
     },
     []
   )
@@ -150,6 +214,12 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     controllerRef.current?.setMessages([])
     persistence?.clear()
   }, [persistence])
+
+  const resetChat = useCallback(() => {
+    clear()
+    setConversationId(null)
+    ;(optsRef.current.transport as TransportWithReset).reset?.()
+  }, [clear])
 
   return {
     messages,
@@ -162,6 +232,9 @@ export function useChat(options: UseChatOptions): UseChatReturn {
     reload,
     setMessages,
     clear,
+    resetChat,
+    conversationId,
+    setConversationId,
     status,
     isStreaming: status === 'streaming' || status === 'submitting',
     error,
