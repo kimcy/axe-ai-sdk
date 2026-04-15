@@ -6,6 +6,25 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-04-15
+
+[compare changes](https://github.com/kimcy/axe-ai-sdk/compare/v0.0.2...v0.0.4)
+
+### 🚀 Features
+
+- 문서 업데이트 및 Markdown 컴포넌트 개선 ([2f830df](https://github.com/kimcy/axe-ai-sdk/commit/2f830df))
+- 패키지 버전 변경 및 Markdown 컴포넌트에 rehype-raw 추가 ([4a73c7d](https://github.com/kimcy/axe-ai-sdk/commit/4a73c7d))
+- 채팅 기능 개선 및 상태 관리 추가 ([641330a](https://github.com/kimcy/axe-ai-sdk/commit/641330a))
+- 문서 업데이트 및 코드 정리 ([378602c](https://github.com/kimcy/axe-ai-sdk/commit/378602c))
+
+### 🏡 Chore
+
+- Release v0.0.4 ([806e9d4](https://github.com/kimcy/axe-ai-sdk/commit/806e9d4))
+
+### ❤️ Contributors
+
+- Kimcy <kimcy1@gmail.com>
+
 ## [0.0.2] - 2026-04-15
 
 ### 파괴적 변경 (pre-1.0 이라 patch 로 나가지만 기존 사용자 코드에 영향)
