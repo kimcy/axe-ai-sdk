@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react'
 import {
   useChat,
+  DefaultChatTransport,
   Markdown,
   lastUserContent,
   bearer,
   // bearerFromCookie, // [B] 용 — 아래 주석 참고
 } from '@axe-ai-sdk/react'
 // import { createMockTransport } from './mock-transport'
-import { createGatewayTransport } from './gateway-transport'
 
 const GATEWAY_URL =
   'https://ca-chatbot-backend.wittybay-7be49843.koreacentral.azurecontainerapps.io/api/v1/gateway/messages'
@@ -18,8 +18,8 @@ export function App() {
   // const transport = useMemo(() => createMockTransport(), [])
   const transport = useMemo(
     () =>
-      createGatewayTransport({
-        url: GATEWAY_URL,
+      new DefaultChatTransport({
+        api: GATEWAY_URL,
 
         // [A] env 폴백 포함 (dev 편의용, 현재 활성)
         //   VITE_GATEWAY_TOKEN 이 있으면 우선, 없으면 쿠키에서 읽음
@@ -28,6 +28,9 @@ export function App() {
         // [B] 쿠키만 쓰는 운영용 — 위 [A] 를 지우고 이 한 줄로 교체
         // headers: bearerFromCookie(GATEWAY_TOKEN_COOKIE),
 
+        // 게이트웨이는 `{ content, conversationId? }` 형태의 body 를 기대합니다.
+        // (기본 `interpret: interpretAuto` 가 conversation_created / message_created /
+        //  thinking / message 이벤트를 canonical StreamPart 로 자동 변환합니다.)
         prepareBody: (request, { conversationId }) => ({
           content: lastUserContent(request),
           ...(conversationId ? { conversationId } : {}),
@@ -92,9 +95,9 @@ export function App() {
       <ul className='messages'>
         {messages.length === 0 && (
           <li className='hint'>
-            Type a message to start chatting with the gateway. The
-            conversation id is persisted across reloads — hit{' '}
-            <code>Reset</code> to start a new session.
+            메시지를 입력해 게이트웨이와 채팅을 시작하세요. 대화 ID는
+            새로고침 후에도 유지됩니다. 새 세션을 시작하려면{' '}
+            <code>Reset</code>을 누르세요.
           </li>
         )}
         {messages.map((m) => (

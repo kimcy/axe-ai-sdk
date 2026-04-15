@@ -3,7 +3,7 @@ import { type ChatTransport } from './transport'
 import { type ChatRequest, type StreamPart } from './types'
 
 /**
- * axe-wire/1 — canonical SSE wire format.
+ * SSE wire format.
  *
  * Each SSE event's `event:` name equals a `StreamPart.type`, and the `data:`
  * payload is a JSON object containing every other field of that StreamPart.

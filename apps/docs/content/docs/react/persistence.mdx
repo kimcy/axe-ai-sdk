@@ -16,6 +16,18 @@ useChat({
 })
 ```
 
+서버가 발급하는 `conversationId` 를 따로 영속화하려면
+`conversationIdStorageKey` 를 지정하세요 — 어시스턴트 메시지
+`metadata.conversationId` 를 감지해 자동으로 동기화됩니다.
+
+```tsx
+useChat({
+  transport,
+  conversationIdStorageKey: 'chat-demo-cid',
+  persistence: { key: 'chat-demo' },
+})
+```
+
 ## 안전한 저장
 
 저장 직전에 **진행 중 상태(`pending` / `streaming`)를 정리**합니다. 이렇게

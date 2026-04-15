@@ -21,6 +21,9 @@ const {
   reload,
   setMessages,
   clear,
+  resetChat,
+  conversationId,
+  setConversationId,
   status,
   isStreaming,
   error,
@@ -29,6 +32,7 @@ const {
   initialMessages: [],
   idleTimeoutMs: 60_000,
   persistence: { key: 'chat-demo' },
+  conversationIdStorageKey: 'chat-demo-cid',
   onError: (err) => console.error(err),
   onFinish: (message) => console.log('완료:', message),
 })
@@ -38,10 +42,12 @@ const {
 
 | 옵션 | 타입 | 설명 |
 | --- | --- | --- |
-| `transport` | `ChatTransport` | **필수.** 백엔드 어댑터 |
+| `transport` | `ChatTransport` | **필수.** 백엔드 어댑터. 선택적으로 `reset()` 을 구현하면 `resetChat()` 에서 호출됩니다. |
 | `initialMessages` | `Message[]` | 초기 메시지 이력 |
 | `idleTimeoutMs` | `number` | 청크 간 최대 간격 (기본 60000) |
-| `persistence` | `PersistenceOptions` | localStorage 영속화 설정 |
+| `persistence` | `PersistenceOptions` | 메시지 이력 영속화 설정 (localStorage 기본) |
+| `conversationIdStorageKey` | `string` | 서버가 발급하는 `conversationId` 를 저장할 스토리지 키. 지정하면 어시스턴트 메시지 `metadata.conversationId` 를 자동 감지 → 저장 → 새로고침 후 복원합니다. |
+| `storage` | `Storage` | `conversationId` 저장소 (기본 `window.localStorage`) |
 | `onError` | `(err) => void` | 에러 발생 시 |
 | `onFinish` | `(message) => void` | 어시스턴트 메시지가 `done`/`error` 로 끝날 때 |
 
@@ -56,7 +62,10 @@ const {
 | `stop()` | 진행 중 요청 중단 |
 | `reload(options?)` | 마지막 어시스턴트 응답 재생성 |
 | `setMessages(next)` | 메시지 강제 교체 |
-| `clear()` | 메시지 비우기 + 영속화 삭제 |
+| `clear()` | 메시지 비우기 + 메시지 영속화 삭제 |
+| `resetChat()` | `clear()` + `conversationId` 초기화 + `transport.reset?.()` 호출 |
+| `conversationId` | 현재 세션 id (`string \| null`) |
+| `setConversationId(id)` | 세션 id 수동 지정 |
 | `status` | `'idle' \| 'submitting' \| 'streaming' \| 'error'` |
 | `isStreaming` | `submitting` 또는 `streaming` 일 때 `true` |
 | `error` | 현재 에러 (`Error \| null`) |

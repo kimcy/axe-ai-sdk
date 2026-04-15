@@ -10,11 +10,11 @@ gateways).
 
 ## Packages
 
-| Package | Description |
-| --- | --- |
-| [`@axe-ai-sdk/core`](packages/core) | Transport-agnostic streaming, SSE parser, `ChatController`, `DefaultChatTransport`, errors, types |
+| Package                               | Description                                                                                                |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [`@axe-ai-sdk/core`](packages/core)   | Transport-agnostic streaming, SSE parser, `ChatController`, `DefaultChatTransport`, errors, types          |
 | [`@axe-ai-sdk/react`](packages/react) | `useChat` hook, optimistic UI, localStorage persistence, `<Markdown>` renderer, `<SSEDebugPanel>` devtools |
-| [`@axe-ai-sdk/docs`](apps/docs) | Nextra 4 기반 한국어 문서 사이트 |
+| [`@axe-ai-sdk/docs`](apps/docs)       | Nextra 4 기반 한국어 문서 사이트                                                                           |
 
 ## Documentation
 
@@ -48,7 +48,7 @@ pnpm example:preview                     # 빌드 결과 미리보기
 새 문서는 `apps/docs/content/docs/<섹션>/<slug>.mdx` 에 추가하고, 해당 폴더의
 `_meta.js` 에 slug 를 등록하면 사이드바에 자동 반영됩니다.
 
-## axe-wire/1 — canonical SSE 포맷
+## SSE 포맷
 
 `DefaultChatTransport` 가 이해하는 유일한 와이어 포맷입니다. 규약은 두 줄.
 
@@ -180,8 +180,14 @@ const transport = new DefaultChatTransport({
 })
 
 export function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, isStreaming, stop } =
-    useChat({ transport, persistence: { key: 'chat-demo' } })
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isStreaming,
+    stop,
+  } = useChat({ transport, persistence: { key: 'chat-demo' } })
 
   return (
     <form onSubmit={handleSubmit}>
@@ -192,9 +198,13 @@ export function Chat() {
         </div>
       ))}
       <input value={input} onChange={handleInputChange} />
-      {isStreaming
-        ? <button type='button' onClick={stop}>Stop</button>
-        : <button type='submit'>Send</button>}
+      {isStreaming ? (
+        <button type='button' onClick={stop}>
+          Stop
+        </button>
+      ) : (
+        <button type='submit'>Send</button>
+      )}
     </form>
   )
 }

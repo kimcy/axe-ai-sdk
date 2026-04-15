@@ -26,7 +26,8 @@
       "Bash(curl -sI \"http://localhost:5556/node_modules/@axe-ai-sdk/react/dist/index.js\")",
       "Bash(curl -s \"http://localhost:5555/node_modules/@axe-ai-sdk/react/dist/index.js\")",
       "Bash(curl -sI \"http://localhost:5555/node_modules/@axe-ai-sdk/react/dist/index.js\")",
-      "Bash(pnpm --filter example-gateway exec tsc --noEmit)"
+      "Bash(pnpm --filter example-gateway exec tsc --noEmit)",
+      "Bash(echo \"exit=$?\")"
     ]
   }
 }
