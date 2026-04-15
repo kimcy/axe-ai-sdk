@@ -8,8 +8,8 @@ body {
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  background: #0b0d10;
-  color: #e5e7eb;
+  background: #ffffff;
+  color: #111827;
 }
 .app {
   max-width: 720px;
@@ -27,9 +27,9 @@ header {
   justify-content: space-between;
   gap: 12px;
   padding: 16px max(16px, calc((100vw - 720px) / 2 + 16px));
-  background: rgba(11, 13, 16, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid #1f2937;
+  border-bottom: 1px solid #e5e7eb;
 }
 header h1 {
   font-size: 20px;
@@ -37,19 +37,19 @@ header h1 {
 }
 .status {
   font-size: 13px;
-  color: #9ca3af;
+  color: #6b7280;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .status code {
-  background: #1f2937;
+  background: #f1f5f9;
   padding: 2px 6px;
   border-radius: 4px;
-  color: #93c5fd;
+  color: #2563eb;
 }
 .status .error {
-  color: #f87171;
+  color: #dc2626;
 }
 button {
   background: #2563eb;
@@ -65,7 +65,8 @@ button:disabled {
   cursor: not-allowed;
 }
 button.clear {
-  background: #374151;
+  background: #e5e7eb;
+  color: #374151;
 }
 .messages {
   list-style: none;
@@ -79,23 +80,25 @@ button.clear {
   color: #6b7280;
   font-size: 13px;
   padding: 16px;
-  background: #111827;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
 .hint code {
-  background: #1f2937;
+  background: #f1f5f9;
   padding: 1px 5px;
   border-radius: 3px;
-  color: #fde047;
+  color: #b45309;
 }
 .msg {
-  background: #111827;
-  border: 1px solid #1f2937;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   padding: 12px 14px;
   border-radius: 10px;
 }
 .msg-user {
-  background: #1e293b;
+  background: #eff6ff;
+  border-color: #bfdbfe;
 }
 .msg-head {
   display: flex;
@@ -105,33 +108,34 @@ button.clear {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
+  color: #6b7280;
 }
 .badge {
   font-size: 10px;
   padding: 2px 6px;
   border-radius: 999px;
-  background: #374151;
-  color: #d1d5db;
+  background: #e5e7eb;
+  color: #374151;
 }
 .badge-streaming {
-  background: #1d4ed8;
+  background: #2563eb;
   color: white;
 }
 .badge-done {
-  background: #065f46;
+  background: #10b981;
   color: white;
 }
 .badge-error {
-  background: #991b1b;
+  background: #dc2626;
   color: white;
 }
 .badge-aborted {
-  background: #78350f;
+  background: #d97706;
   color: white;
 }
 .badge-pending {
-  background: #4b5563;
+  background: #9ca3af;
+  color: white;
 }
 .content {
   white-space: pre-wrap;
@@ -143,27 +147,27 @@ button.clear {
   list-style: none;
   padding: 8px 10px;
   margin: 0 0 8px;
-  background: #0f172a;
+  background: #f1f5f9;
   border-radius: 6px;
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748b;
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 .step-running::before {
   content: '⋯ ';
-  color: #60a5fa;
+  color: #2563eb;
 }
 .step-complete::before {
   content: '✓ ';
-  color: #34d399;
+  color: #10b981;
 }
 .citations {
   list-style: none;
   padding: 8px 10px;
   margin: 8px 0 0;
-  background: #0f172a;
+  background: #f1f5f9;
   border-radius: 6px;
   font-size: 12px;
   display: flex;
@@ -171,7 +175,7 @@ button.clear {
   gap: 4px;
 }
 .citations a {
-  color: #93c5fd;
+  color: #2563eb;
   text-decoration: none;
 }
 .citations a:hover {
@@ -184,8 +188,9 @@ button.clear {
 }
 .err {
   margin-top: 8px;
-  color: #fca5a5;
-  background: #450a0a;
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 13px;
@@ -196,16 +201,17 @@ button.clear {
   left: 0;
   right: 0;
   padding: 16px max(16px, calc((100vw - 720px) / 2 + 16px));
-  background: #0b0d10;
-  border-top: 1px solid #1f2937;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid #e5e7eb;
   display: flex;
   gap: 8px;
 }
 .composer input {
   flex: 1;
-  background: #111827;
-  border: 1px solid #1f2937;
-  color: #e5e7eb;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #111827;
   padding: 10px 14px;
   border-radius: 6px;
   font-size: 14px;
@@ -224,13 +230,13 @@ button.clear {
   display: flex;
   gap: 4px;
   padding: 0 max(16px, calc((100vw - 720px) / 2 + 16px));
-  background: rgba(11, 13, 16, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid #1f2937;
+  border-bottom: 1px solid #e5e7eb;
 }
 .tab {
   background: transparent;
-  color: #9ca3af;
+  color: #6b7280;
   border: none;
   border-bottom: 2px solid transparent;
   padding: 8px 14px;
@@ -239,7 +245,7 @@ button.clear {
   cursor: pointer;
 }
 .tab-active {
-  color: #e5e7eb;
+  color: #111827;
   border-bottom-color: #2563eb;
 }
 
@@ -263,16 +269,16 @@ button.clear {
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
-  color: #9ca3af;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 .gen-textarea {
   width: 100%;
   min-height: 240px;
-  background: #111827;
-  border: 1px solid #1f2937;
-  color: #e5e7eb;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  color: #111827;
   padding: 12px 14px;
   border-radius: 8px;
   font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -288,8 +294,8 @@ button.clear {
 .debug {
   margin-top: 24px;
   padding: 12px;
-  background: #0f172a;
-  border: 1px solid #1f2937;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   font-size: 12px;
 }
@@ -298,13 +304,13 @@ button.clear {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: #9ca3af;
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 .debug-toggle {
   background: transparent;
-  color: #9ca3af;
+  color: #6b7280;
   border: none;
   padding: 2px 0;
   font-size: 12px;
@@ -314,13 +320,13 @@ button.clear {
   font-weight: 600;
 }
 .debug-toggle:hover {
-  color: #e5e7eb;
+  color: #111827;
 }
 .debug-list {
   margin-top: 8px;
 }
 .debug-empty {
-  color: #6b7280;
+  color: #9ca3af;
   padding: 8px 0;
 }
 .debug-list {
@@ -339,26 +345,29 @@ button.clear {
   gap: 8px;
   align-items: start;
   padding: 6px 8px;
-  background: #111827;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 4px;
-  border-left: 2px solid #34d399;
+  border-left: 2px solid #10b981;
 }
 .debug-row.unmapped {
-  border-left-color: #f87171;
+  border-left-color: #dc2626;
 }
 .debug-event {
-  color: #93c5fd;
+  color: #2563eb;
   background: transparent;
   padding: 0;
   font-weight: 600;
 }
 .debug-count {
-  color: #6b7280;
+  color: #9ca3af;
 }
 .debug-data {
   margin: 0;
-  color: #d1d5db;
+  color: #374151;
   white-space: pre-wrap;
   word-break: break-all;
   font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
+</content>
+</invoke>

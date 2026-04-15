@@ -1,4 +1,5 @@
 export * from './use-chat'
+export * from './use-persistent-chat'
 export * from './persistence'
 export * from './sse-debug-panel'
 export * from './markdown'

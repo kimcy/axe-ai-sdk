@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react'
 import ReactMarkdown, { type Options as ReactMarkdownOptions } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
+import rehypeRaw from 'rehype-raw'
 
 export type MarkdownProps = {
   children: string
@@ -24,6 +25,7 @@ export function Markdown({ children, className, options }: MarkdownProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm, ...(options?.remarkPlugins ?? [])]}
         rehypePlugins={[
+          rehypeRaw,
           [rehypeHighlight, { detect: true, ignoreMissing: true }],
           ...(options?.rehypePlugins ?? []),
         ]}

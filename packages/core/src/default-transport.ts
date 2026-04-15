@@ -44,6 +44,17 @@ export type TransportState = {
   conversationId: string | null
 }
 
+/**
+ * Maps one raw SSE event (event name + data payload) to zero or more
+ * `StreamPart`s. Return `[]` to drop an event, or multiple parts to
+ * fan one wire event out into several logical parts.
+ *
+ * The default implementation (`interpretAxeWire1`) speaks the canonical
+ * `axe-wire/1` format. Override via `DefaultChatTransportOptions.interpret`
+ * for servers whose SSE event names / payloads don't match canonical.
+ */
+export type InterpretSSE = (event: string, data: string) => StreamPart[]
+
 export type DefaultChatTransportOptions = {
   /** Endpoint URL. */
   api: string
@@ -57,6 +68,13 @@ export type DefaultChatTransportOptions = {
     request: ChatRequest,
     state: TransportState
   ) => Record<string, unknown>
+  /**
+   * Custom SSE → StreamPart mapper. Defaults to `interpretAxeWire1` which
+   * speaks the canonical `axe-wire/1` format. Provide this for servers
+   * whose wire format differs (e.g. a legacy backend that emits
+   * `event: message` with a composite JSON payload).
+   */
+  interpret?: InterpretSSE
   /** Custom fetch (useful for SSR/testing). */
   fetch?: typeof fetch
 }
@@ -137,6 +155,7 @@ export class DefaultChatTransport implements ChatTransport {
       return
     }
 
+    const interpret = this.opts.interpret ?? interpretAuto
     let finished = false
     try {
       for await (const ev of readSSEStream(res.body, request.signal)) {
@@ -176,14 +195,125 @@ export class DefaultChatTransport implements ChatTransport {
   }
 }
 
-function interpret(event: string, rawData: string): StreamPart[] {
+/**
+ * Default `InterpretSSE` for the canonical `axe-wire/1` format:
+ * SSE `event:` name equals a `StreamPart.type`, and `data:` is a JSON
+ * object containing the remaining fields of that StreamPart.
+ *
+ * Exported so custom interpreters can compose / fall back to it.
+ */
+export function interpretAxeWire1(
+  event: string,
+  rawData: string
+): StreamPart[] {
   if (rawData === '[DONE]') return [{ type: 'finish', reason: 'stop' }]
   if (!KNOWN_TYPES.has(event as StreamPart['type'])) return []
   const data = tryParseJson(rawData) ?? {}
   return [{ type: event, ...data } as StreamPart]
 }
 
-function tryParseJson(raw: string): any {
+type CompositeEventData = {
+  conversationId?: string
+  messageId?: string
+  content?: string
+  code?: string
+  message?: string
+  agent?: string
+  status?: 'running' | 'complete'
+  thought?: string
+}
+
+/**
+ * `InterpretSSE` for the common "composite" SSE format used by many chat
+ * backends that don't speak `axe-wire/1`. One wire event can fan out into
+ * multiple `StreamPart`s.
+ *
+ * Supported shapes:
+ *
+ * - `data: [DONE]` → `finish`
+ * - `event: thinking` with `{ agent, status, thought? }`
+ *       → `thinking-step`
+ * - Any event whose JSON payload has `{ code, message? }`
+ *       → `error` (with `code`)
+ * - Default / unnamed events with composite
+ *   `{ conversationId?, messageId?, content? }` payload
+ *       → `metadata` + `message-start` + `text-delta` (any subset present)
+ * - Non-JSON `event: message` payload → raw text `text-delta`
+ *
+ * Use via `new DefaultChatTransport({ interpret: interpretComposite, ... })`.
+ */
+export function interpretComposite(
+  event: string,
+  rawData: string
+): StreamPart[] {
+  if (rawData === '[DONE]') return [{ type: 'finish', reason: 'stop' }]
+
+  const parsed = tryParseJson(rawData) as CompositeEventData | null
+  if (!parsed) {
+    if (event === 'message' && rawData) {
+      return [{ type: 'text-delta', delta: rawData }]
+    }
+    return []
+  }
+
+  if (parsed.code) {
+    return [
+      {
+        type: 'error',
+        error: parsed.message ?? 'Server error',
+        code: parsed.code,
+      },
+    ]
+  }
+
+  if (event === 'thinking') {
+    if (!parsed.agent || !parsed.status) return []
+    return [
+      {
+        type: 'thinking-step',
+        step: {
+          agent: parsed.agent,
+          status: parsed.status,
+          thought: parsed.thought ?? '',
+        },
+      },
+    ]
+  }
+
+  const parts: StreamPart[] = []
+  if (parsed.conversationId) {
+    parts.push({
+      type: 'metadata',
+      data: { conversationId: parsed.conversationId },
+    })
+  }
+  if (parsed.messageId) {
+    parts.push({ type: 'message-start', messageId: parsed.messageId })
+  }
+  if (parsed.content) {
+    parts.push({ type: 'text-delta', delta: parsed.content })
+  }
+  return parts
+}
+
+/**
+ * Default `InterpretSSE`: tries canonical `axe-wire/1` first, and falls
+ * back to `interpretComposite` for events the canonical parser doesn't
+ * recognize. Used automatically by `DefaultChatTransport` when no
+ * `interpret` option is provided, so most backends — canonical *and*
+ * common composite formats — work out of the box.
+ *
+ * If your server speaks something neither of these understands, provide
+ * your own `InterpretSSE` via `DefaultChatTransportOptions.interpret`.
+ */
+export function interpretAuto(event: string, rawData: string): StreamPart[] {
+  const canonical = interpretAxeWire1(event, rawData)
+  if (canonical.length > 0) return canonical
+  return interpretComposite(event, rawData)
+}
+
+/** Safe `JSON.parse` wrapper exported for custom interpreter authors. */
+export function tryParseJson(raw: string): any {
   if (!raw) return null
   try {
     return JSON.parse(raw)

@@ -92,11 +92,7 @@ export function App() {
               </ul>
             )}
 
-            {m.role === 'assistant' ? (
-              <Markdown className='content'>{m.content}</Markdown>
-            ) : (
-              <div className='content'>{m.content}</div>
-            )}
+            <Markdown>{m.content}</Markdown>
 
             {m.citations && m.citations.length > 0 && (
               <ul className='citations'>
