@@ -3,20 +3,35 @@ import { type ChatTransport } from './transport'
 import { type ChatRequest, type StreamPart } from './types'
 
 /**
- * JSON으로 선언하는 SSE 이벤트 → StreamPart 매핑 규칙.
- * - `type`: 출력할 StreamPart.type
- * - `fields`: { 타겟필드: 소스필드 } — data의 소스필드 값을 타겟필드로 복사
- * - `wrap`: 매핑된 필드를 한 번 더 감쌀 키 (예: "step", "citation", "data")
+ * axe-wire/1 — canonical SSE wire format.
  *
- * 한 이벤트에서 여러 StreamPart를 내보내려면 Rule을 배열로 선언한다.
+ * Each SSE event's `event:` name equals a `StreamPart.type`, and the `data:`
+ * payload is a JSON object containing every other field of that StreamPart.
+ *
+ * Example:
+ *   event: text-delta
+ *   data: {"delta":"안녕"}
+ *
+ *   event: thinking-step
+ *   data: {"step":{"agent":"planner","status":"running","thought":"..."}}
+ *
+ *   event: finish
+ *   data: {"reason":"stop"}
+ *
+ * Servers that can emit this shape need no mapping configuration. Servers
+ * whose format differs should implement `ChatTransport.send` directly.
  */
-export type SSERule = {
-  type: string
-  fields?: Record<string, string>
-  wrap?: string
-}
-
-export type SSESchema = Record<string, SSERule | SSERule[]>
+const KNOWN_TYPES = new Set<StreamPart['type']>([
+  'message-start',
+  'text-delta',
+  'thinking-step',
+  'tool-call',
+  'tool-result',
+  'citation',
+  'metadata',
+  'error',
+  'finish',
+])
 
 export type SSEDebugEvent = {
   event: string
@@ -32,8 +47,6 @@ export type TransportState = {
 export type DefaultChatTransportOptions = {
   /** Endpoint URL. */
   api: string
-  /** Schema mapping server SSE events to `StreamPart` objects. */
-  schema: SSESchema
   /** Extra headers (static or resolver). */
   headers?: Record<string, string> | (() => Record<string, string>)
   /**
@@ -58,21 +71,21 @@ const defaultPrepareBody = (
 }
 
 /**
- * HTTP+SSE chat transport with declarative event-schema mapping.
+ * HTTP+SSE chat transport speaking the canonical `axe-wire/1` format.
  *
  * - `api` 로 POST 스트리밍 호출
- * - 서버 SSE 이벤트를 `schema` 기반으로 `StreamPart`로 변환
- * - `metadata.conversationId` 자동 추적 → 다음 요청 body에 포함
+ * - 서버 SSE 이벤트(`event:` 이름이 `StreamPart.type`) 를 그대로 yield
+ * - `metadata.conversationId` 자동 추적 → 다음 요청 body 에 포함
  * - `onSSE(listener)` 로 raw 이벤트 구독 (디버그/시각화용)
+ *
+ * 서버 포맷이 canonical 이 아니면 `ChatTransport.send` 를 직접 구현하세요.
  */
 export class DefaultChatTransport implements ChatTransport {
   private state: TransportState = { conversationId: null }
   private listeners = new Set<(e: SSEDebugEvent) => void>()
-  private interpret: (event: string, rawData: string) => StreamPart[]
   private fetchImpl: typeof fetch
 
   constructor(private opts: DefaultChatTransportOptions) {
-    this.interpret = buildInterpreter(opts.schema)
     this.fetchImpl = opts.fetch ?? ((...args) => fetch(...args))
   }
 
@@ -127,7 +140,7 @@ export class DefaultChatTransport implements ChatTransport {
     let finished = false
     try {
       for await (const ev of readSSEStream(res.body, request.signal)) {
-        const parts = this.interpret(ev.event, ev.data)
+        const parts = interpret(ev.event, ev.data)
         this.emit({ event: ev.event, data: ev.data, parts, ts: Date.now() })
         for (const part of parts) {
           if (part.type === 'metadata') {
@@ -163,29 +176,11 @@ export class DefaultChatTransport implements ChatTransport {
   }
 }
 
-function applyRule(rule: SSERule, data: any): StreamPart | null {
-  const mapped: Record<string, unknown> = {}
-  if (rule.fields) {
-    for (const [target, source] of Object.entries(rule.fields)) {
-      const value = data?.[source]
-      if (value !== undefined) mapped[target] = value
-    }
-  }
-  const payload = rule.wrap ? { [rule.wrap]: mapped } : mapped
-  return { type: rule.type, ...payload } as StreamPart
-}
-
-function buildInterpreter(schema: SSESchema) {
-  return (event: string, rawData: string): StreamPart[] => {
-    if (rawData === '[DONE]') return [{ type: 'finish', reason: 'stop' }]
-    const entry = schema[event]
-    if (!entry) return []
-    const rules = Array.isArray(entry) ? entry : [entry]
-    const data = tryParseJson(rawData) ?? {}
-    return rules
-      .map((r) => applyRule(r, data))
-      .filter((p): p is StreamPart => p !== null)
-  }
+function interpret(event: string, rawData: string): StreamPart[] {
+  if (rawData === '[DONE]') return [{ type: 'finish', reason: 'stop' }]
+  if (!KNOWN_TYPES.has(event as StreamPart['type'])) return []
+  const data = tryParseJson(rawData) ?? {}
+  return [{ type: event, ...data } as StreamPart]
 }
 
 function tryParseJson(raw: string): any {

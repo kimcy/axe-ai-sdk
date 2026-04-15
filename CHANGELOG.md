@@ -6,17 +6,53 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-### 변경
+## [0.0.2] - 2026-04-15
+
+### 파괴적 변경 (pre-1.0 이라 patch 로 나가지만 기존 사용자 코드에 영향)
+
+- **`DefaultChatTransport` 의 `schema` 옵션 제거.** 이제 canonical
+  `axe-wire/1` 와이어 포맷만 이해합니다. `event:` 이름이 `StreamPart.type`
+  과 같고 `data:` 는 나머지 필드의 JSON. 스키마 매핑 개념은 서버 측 BFF
+  혹은 `ChatTransport.send` 직접 구현으로 밀어냈습니다.
+- 관련 공개 심볼 제거: `SSESchema`, `SSERule`, `wrap`, `fields`,
+  `parseSSEDump`, `inferSchema`, `inferSchemaFromRaw`, `ParsedSSEEvent`.
+- `axe-infer-schema` CLI + `pnpm infer-schema` 스크립트 제거.
+
+### 추가
+
+- **canonical `axe-wire/1` 포맷 정립.** 서버가 규격만 맞추면 클라이언트는
+  `new DefaultChatTransport({ api })` 한 줄로 동작합니다. 비표준 서버는
+  (a) BFF 에서 한 번 번역 (b) `ChatTransport.send` 직접 구현 두 경로.
+- **`@axe-ai-sdk/core` 의 auth 헬퍼** — 순수 함수, 의존성 없음:
+  - `bearer(token)` → `{ Authorization: 'Bearer ...' }` (null 이면 `{}`)
+  - `getCookie(name)` → SSR-safe 쿠키 판독기
+  - `bearerFromCookie(name)` → `() => Record<string, string>` 리졸버 팩토리.
+    `headers` 옵션에 그대로 꽂으면 매 요청마다 쿠키에서 토큰을 읽습니다.
+  401 자동 리프레시 / localStorage / OAuth 는 의도적으로 포함하지 않음.
+- **`@axe-ai-sdk/react` 의 `<Markdown>` 컴포넌트** —
+  GitHub-flavored Markdown (`remark-gfm`), `highlight.js` 기반 syntax
+  highlighting, 코드 블록 복사 버튼 + 언어 배지, 외부 링크 자동
+  `target="_blank" rel="noreferrer"`. `@axe-ai-sdk/react/styles.css` 로
+  기본 테마 제공.
+- **`@axe-ai-sdk/react` 의 `<SSEDebugPanel>` + `useSSELog`** —
+  `DefaultChatTransport.onSSE()` 를 구독해 raw SSE 이벤트와 매핑 결과
+  (`StreamPart[]`) 를 나란히 보여주는 드롭인 devtools. `partCount: 0`
+  이벤트는 강조되어 canonical 규격을 벗어난 서버 이벤트를 즉시 드러냅니다.
+- `DefaultChatTransport.onSSE(listener)` — raw SSE 이벤트 구독 API.
+- `lastUserContent(request)` 유틸 — 마지막 user 메시지 content 추출.
+- **문서 신규 페이지:**
+  - [`core/default-transport`](apps/docs/content/docs/core/default-transport.mdx)
+  - [`react/markdown`](apps/docs/content/docs/react/markdown.mdx)
+  - [`react/sse-debug`](apps/docs/content/docs/react/sse-debug.mdx)
+
+### 이전 [Unreleased] 항목 (0.0.1 배포 후 ~ 0.0.2 이전)
 
 - **패키지 네임스페이스 이름 변경**: `@axd-ai-sdk/*` → `@axe-ai-sdk/*`.
   모든 패키지·문서·예제·README 의 참조를 일괄 업데이트. `pnpm install` 로
   lockfile 재생성 필요.
 - GitHub 저장소 URL 을 `kimcy/axe-ai-sdk` 로 통일.
-
-### 추가
-
-- **`@axe-ai-sdk/docs`** — Nextra 4 (Next.js App Router) 기반 한국어 문서 사이트
-  ([`apps/docs`](apps/docs)) 신규 추가.
+- **`@axe-ai-sdk/docs`** — Nextra 4 (Next.js App Router) 기반 한국어 문서
+  사이트 ([`apps/docs`](apps/docs)) 신규 추가.
   - 랜딩 + 빠른시작 통합 페이지 (`/docs`).
   - 섹션: 기본 개념 (전송/스트리밍/상태기계), core 레퍼런스, react 훅,
     고급(에이전트·툴·RAG·에러처리).

@@ -5,9 +5,9 @@ export * from './markdown'
 export {
   DefaultChatTransport,
   lastUserContent,
-  parseSSEDump,
-  inferSchema,
-  inferSchemaFromRaw,
+  getCookie,
+  bearer,
+  bearerFromCookie,
 } from '@axe-ai-sdk/core'
 export type {
   ChatTransport,
@@ -21,9 +21,6 @@ export type {
   Citation,
   ControllerStatus,
   DefaultChatTransportOptions,
-  SSESchema,
-  SSERule,
   SSEDebugEvent,
   TransportState,
-  ParsedSSEEvent,
 } from '@axe-ai-sdk/core'

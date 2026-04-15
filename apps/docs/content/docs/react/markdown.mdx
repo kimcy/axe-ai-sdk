@@ -1,0 +1,77 @@
+---
+title: Markdown 렌더러
+description: GitHub-flavored Markdown, 코드 하이라이팅, 코드블록 복사 버튼 내장 React 컴포넌트.
+---
+
+import { Callout } from 'nextra/components'
+
+# `<Markdown>`
+
+LLM 출력은 거의 항상 Markdown 입니다. `@axe-ai-sdk/react` 는 그 흔한 요구를
+커버하는 드롭인 컴포넌트를 제공합니다.
+
+```tsx
+import { Markdown } from '@axe-ai-sdk/react'
+import '@axe-ai-sdk/react/styles.css' // 기본 테마 + highlight.js 색상
+
+<Markdown>{message.content}</Markdown>
+```
+
+## 내장 기능
+
+- **GitHub-flavored Markdown** — 테이블, 체크리스트, 취소선, 자동 링크
+  (`remark-gfm`).
+- **Syntax highlighting** — `rehype-highlight` + highlight.js. 언어 자동 감지,
+  미지원 언어는 조용히 무시.
+- **펜스 코드 블록 UI** — 복사 버튼 + 언어 배지가 붙어 있습니다.
+- **외부 링크 안전화** — 모든 `<a>` 에 `target="_blank"` 와
+  `rel="noreferrer"` 가 자동 적용됩니다.
+
+## API
+
+```ts
+type MarkdownProps = {
+  children: string
+  className?: string
+  options?: Omit<ReactMarkdownOptions, 'children'>
+}
+```
+
+- **`children`** — Markdown 문자열. 스트리밍 중인 부분 문자열도 안전하게
+  받습니다.
+- **`className`** — 래퍼 `<div>` 에 추가할 클래스. 기본 클래스인 `axe-md` 는
+  항상 함께 붙습니다.
+- **`options`** — 내부 `react-markdown` 에 그대로 전달됩니다.
+  `components`, `remarkPlugins`, `rehypePlugins` 를 커스터마이징할 수 있으며,
+  `remarkGfm` 와 `rehypeHighlight` 는 기본값으로 앞에 합쳐집니다.
+
+## 커스텀 컴포넌트 예시
+
+```tsx
+<Markdown
+  options={{
+    components: {
+      // 코드블록은 기본 CodeBlock 으로 유지, h1 만 갈아끼우기
+      h1: ({ children }) => <h1 className='text-2xl font-bold'>{children}</h1>,
+    },
+  }}
+>
+  {message.content}
+</Markdown>
+```
+
+## 스타일
+
+`@axe-ai-sdk/react/styles.css` 는 다음을 한 번에 넣습니다.
+
+- `.axe-md` 기본 타이포그래피 (본문 / 헤딩 / 리스트 / 테이블 / 인라인 코드)
+- 코드블록 UI (복사 버튼, 언어 배지)
+- highlight.js GitHub 테마 (라이트/다크 자동 전환)
+
+자체 테마를 쓰고 싶다면 `styles.css` import 를 생략하고 직접 `.axe-md`
+선택자 혹은 다른 highlight.js 테마(`highlight.js/styles/*`) 를 import 하세요.
+
+<Callout type="info">
+  `react-markdown`, `remark-gfm`, `rehype-highlight`, `highlight.js` 는
+  `@axe-ai-sdk/react` 의 직접 의존성으로 포함됩니다. 중복 설치할 필요가 없습니다.
+</Callout>

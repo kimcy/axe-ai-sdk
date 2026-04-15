@@ -1,6 +1,6 @@
 {
   "name": "@axe-ai-sdk/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Transport-agnostic streaming chat core — robust SSE parser, request-scoped state machine, first-class agent/tool/RAG metadata.",
   "license": "MIT",
   "author": "axe-ai-sdk contributors",
@@ -37,12 +37,8 @@
       "require": "./dist/index.cjs"
     }
   },
-  "bin": {
-    "axe-infer-schema": "./bin/infer-schema.mjs"
-  },
   "files": [
     "dist",
-    "bin",
     "README.md",
     "LICENSE"
   ],

@@ -3,15 +3,17 @@
 React-first streaming chat SDK. Adapter-based, SSE/stream safe, agent/tool/RAG
 metadata first-class.
 
-Inspired by Vercel's `ai` SDK but adapter-centric: bring your own backend
-(OpenAI, Anthropic, MCP, custom gateway) by writing one `ChatTransport`.
+Inspired by Vercel's `ai` SDK but adapter-centric: point `DefaultChatTransport`
+at a server that speaks the canonical **axe-wire/1** SSE format, or implement
+one `ChatTransport` for anything else (OpenAI, Anthropic, MCP, legacy
+gateways).
 
 ## Packages
 
 | Package | Description |
 | --- | --- |
-| [`@axe-ai-sdk/core`](packages/core) | Transport-agnostic streaming, SSE parser, `ChatController`, errors, types |
-| [`@axe-ai-sdk/react`](packages/react) | `useChat` hook, optimistic UI, localStorage persistence |
+| [`@axe-ai-sdk/core`](packages/core) | Transport-agnostic streaming, SSE parser, `ChatController`, `DefaultChatTransport`, errors, types |
+| [`@axe-ai-sdk/react`](packages/react) | `useChat` hook, optimistic UI, localStorage persistence, `<Markdown>` renderer, `<SSEDebugPanel>` devtools |
 | [`@axe-ai-sdk/docs`](apps/docs) | Nextra 4 기반 한국어 문서 사이트 |
 
 ## Documentation
@@ -31,7 +33,10 @@ pnpm docs:clean    # .next 정리
 
 ## Example (gateway)
 
-Vite 기반 예제는 [`examples/gateway`](examples/gateway) 에 있습니다.
+Vite 기반 예제는 [`examples/gateway`](examples/gateway) 에 있습니다. 순수
+클라이언트 mock transport 로 동작하므로 서버 준비 없이 바로 실행할 수 있고,
+`thinking-step` / `citation` / `text-delta` / `error` 등 canonical
+`StreamPart` 전 종류를 시연합니다.
 
 ```bash
 pnpm -r --filter './packages/*' build   # 패키지 먼저 빌드 (최초 1회)
@@ -43,24 +48,60 @@ pnpm example:preview                     # 빌드 결과 미리보기
 새 문서는 `apps/docs/content/docs/<섹션>/<slug>.mdx` 에 추가하고, 해당 폴더의
 `_meta.js` 에 slug 를 등록하면 사이드바에 자동 반영됩니다.
 
+## axe-wire/1 — canonical SSE 포맷
+
+`DefaultChatTransport` 가 이해하는 유일한 와이어 포맷입니다. 규약은 두 줄.
+
+1. **`event:` 이름 = `StreamPart.type`** (`text-delta`, `thinking-step`,
+   `tool-call`, `tool-result`, `citation`, `message-start`, `metadata`,
+   `error`, `finish`).
+2. **`data:` 는 JSON 객체**. 해당 `StreamPart` 의 나머지 필드를 그대로 담습니다.
+
+```
+event: text-delta
+data: {"delta":"안녕"}
+
+event: thinking-step
+data: {"step":{"agent":"planner","status":"running","thought":"Parsing intent"}}
+
+event: finish
+data: {"reason":"stop"}
+```
+
+이게 전부입니다. 서버가 이 모양으로만 내려주면 클라이언트 측 매핑 코드는
+한 줄도 필요 없습니다.
+
 ## Features
 
+- **`DefaultChatTransport` — 제로 컨피그** — HTTP+SSE 전송 계층을 한 줄로.
+  서버 이벤트를 `{ type: event, ...data }` 로 읽어 그대로 yield 합니다.
+  `conversationId` 자동 추적, `onSSE()` 로 raw 이벤트 구독까지 내장.
+- **Auth 헬퍼** — `bearer(token)`, `bearerFromCookie(name)`, `getCookie(name)`
+  셋을 `@axe-ai-sdk/core` 에서 제공. `headers` resolver 에 그대로 꽂아서
+  쿠키 또는 토큰 문자열에서 `Authorization: Bearer ...` 를 만들 수 있습니다.
+  401 리프레시나 OAuth 플로우 같은 앱별 정책은 의도적으로 포함하지 않습니다.
 - **Robust SSE parsing** — handles CRLF/LF, multi-line `data:`, comments,
   partial chunks at arbitrary byte boundaries, UTF-8 stream-safe.
-- **Adapter pattern** — implement `ChatTransport.send(request)` once,
-  swap backends freely.
-- **Request isolation** — per-request abort controllers, no interleaved
-  streams when users fire multiple messages in quick succession.
-- **Idle timeout** — chunk-gap-based, not total request timeout
-  (appropriate for long-running generations).
-- **Agent / tool / RAG ready** — `StreamPart` union carries `thinking-step`,
-  `tool-call`, `tool-result`, `citation`, and arbitrary `metadata`.
+- **Adapter pattern** — 규격이 다른 서버라면 `ChatTransport.send(request)` 를
+  직접 구현해 백엔드를 자유롭게 교체하세요. 예제:
+  [`examples/gateway/src/mock-transport.ts`](examples/gateway/src/mock-transport.ts).
+- **Request isolation** — 요청별 AbortController. 사용자가 빠르게 여러 번
+  발사해도 스트림이 뒤섞이지 않습니다.
+- **Idle timeout** — 총 요청 시간이 아닌 청크 간 간격 기반 (장시간 생성에 적합).
+- **Agent / tool / RAG ready** — `StreamPart` 유니언이 `thinking-step`,
+  `tool-call`, `tool-result`, `citation`, 임의 `metadata` 를 직접 전달합니다.
 - **Typed status machine** — each message tracks `pending` → `streaming`
   → `done` / `error` / `aborted`.
-- **Persistence** — opt-in `localStorage`, with in-flight state sanitization
-  on save so refreshes never resurrect half-streamed messages.
-- **Tiny footprint** — core ~11 KB, react ~4 KB (minified, pre-gzip).
-  React is a peer dependency; core has zero runtime dependencies.
+- **Persistence** — opt-in `localStorage`. 저장 직전 in-flight 상태를
+  세척하므로 새로고침 후 반쯤 스트리밍된 메시지가 되살아나지 않습니다.
+- **`<Markdown>` 렌더러** — GFM(테이블·체크리스트·취소선·자동링크),
+  highlight.js 기반 코드 하이라이팅, 코드 블록 복사 버튼 + 언어 배지 내장.
+  `@axe-ai-sdk/react/styles.css` 를 import 하면 기본 테마가 적용됩니다.
+- **`<SSEDebugPanel>` 드롭인 devtools** — `DefaultChatTransport` 를 구독해
+  raw SSE 이벤트와 canonical 매핑 결과를 실시간으로 보여줍니다. canonical
+  타입이 아니라서 무시된 이벤트(`partCount: 0`) 는 강조되어 규격 갭이 즉시
+  드러납니다.
+- **Tiny footprint** — React 는 peer dependency. core 는 zero 런타임 의존성.
 
 ## Local development
 
@@ -121,11 +162,22 @@ The consumer picks up changes as soon as `dist/` updates.
 
 ## Quick example
 
-```tsx
-import { useChat } from '@axe-ai-sdk/react'
-import { createMyTransport } from './my-transport'
+서버가 `axe-wire/1` 을 말한다면 클라이언트는 이걸로 끝입니다.
 
-const transport = createMyTransport({ url: '/api/chat' })
+```tsx
+import {
+  useChat,
+  DefaultChatTransport,
+  Markdown,
+  bearerFromCookie,
+} from '@axe-ai-sdk/react'
+import '@axe-ai-sdk/react/styles.css'
+
+const transport = new DefaultChatTransport({
+  api: '/api/chat',
+  // 쿠키 `auth_token` 에 담긴 JWT 를 매 요청마다 Authorization 헤더로
+  headers: bearerFromCookie('auth_token'),
+})
 
 export function Chat() {
   const { messages, input, handleInputChange, handleSubmit, isStreaming, stop } =
@@ -135,23 +187,25 @@ export function Chat() {
     <form onSubmit={handleSubmit}>
       {messages.map((m) => (
         <div key={m.id}>
-          <strong>{m.role}</strong>: {m.content}
+          <strong>{m.role}</strong>
+          <Markdown>{m.content}</Markdown>
         </div>
       ))}
       <input value={input} onChange={handleInputChange} />
-      {isStreaming ? (
-        <button type='button' onClick={stop}>Stop</button>
-      ) : (
-        <button type='submit'>Send</button>
-      )}
+      {isStreaming
+        ? <button type='button' onClick={stop}>Stop</button>
+        : <button type='submit'>Send</button>}
     </form>
   )
 }
 ```
 
-See [`examples/gateway/`](examples/gateway) for a full runnable example that
-includes a mock SSE transport, request metadata, thinking-step rendering, and
-error/retry flows.
+서버가 OpenAI / Anthropic / 레거시 포맷이라면 두 가지 중 하나를 선택합니다.
+
+1. **BFF 에서 번역** — Next.js route handler, Cloudflare Worker 등에서 한 번만
+   canonical 포맷으로 교정. 권장 경로이고, 클라이언트는 위 예제 그대로.
+2. **`ChatTransport.send` 직접 구현** — [`examples/gateway/src/mock-transport.ts`](examples/gateway/src/mock-transport.ts)
+   가 완전한 참고 구현입니다.
 
 ## Commit & Release
 

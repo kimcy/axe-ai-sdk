@@ -1,0 +1,87 @@
+---
+title: SSE 디버그 패널
+description: DefaultChatTransport 의 raw SSE 이벤트와 canonical 매핑 결과를 실시간으로 보여주는 devtools 컴포넌트.
+---
+
+import { Callout } from 'nextra/components'
+
+# `<SSEDebugPanel>` & `useSSELog`
+
+`DefaultChatTransport` 는 canonical `axe-wire/1` 포맷만 이해합니다. 서버가
+실수로 다른 이벤트명을 내려주면 해당 이벤트는 **조용히 무시**되는데, 이때
+`<SSEDebugPanel>` 이 raw 이벤트와 매핑 결과를 나란히 보여줘서 문제를 즉시
+드러내는 드롭인 devtools 입니다.
+
+## 드롭인 패널
+
+```tsx
+import { useChat, DefaultChatTransport, SSEDebugPanel } from '@axe-ai-sdk/react'
+
+const transport = new DefaultChatTransport({ api: '/api/chat' })
+
+export function Chat() {
+  const chat = useChat({ transport })
+
+  return (
+    <>
+      {/* ... 채팅 UI ... */}
+      {import.meta.env.DEV && (
+        <SSEDebugPanel transport={transport} defaultOpen maxEntries={100} />
+      )}
+    </>
+  )
+}
+```
+
+### Props
+
+| Prop | 기본값 | 설명 |
+| --- | --- | --- |
+| `transport` | — | `DefaultChatTransport` 인스턴스. `null` 을 넣으면 조용히 비활성화 |
+| `defaultOpen` | `false` | 접힌 상태로 시작할지 펼친 상태로 시작할지 |
+| `maxEntries` | `50` | 롤링 버퍼 크기. 초과분은 앞에서부터 버려집니다 |
+| `className` | `'axe-sse-debug'` | 루트 `<section>` 에 붙는 클래스 |
+
+`partCount: 0` 으로 표시되는 이벤트는 "canonical 타입이 아니라서 무시된"
+이벤트입니다. 규격을 벗어난 서버 이벤트를 한눈에 찾을 수 있습니다.
+
+## 직접 UI 를 만들고 싶다면 — `useSSELog`
+
+패널의 룩앤필이 프로젝트와 맞지 않으면 훅만 써서 직접 UI 를 그리세요.
+
+```tsx
+import { useSSELog } from '@axe-ai-sdk/react'
+
+function MyDebugView({ transport }) {
+  const { log, clear } = useSSELog(transport, 200)
+
+  return (
+    <div>
+      <button onClick={clear}>Clear</button>
+      {log.map((entry, i) => (
+        <pre key={i} data-empty={entry.parts.length === 0}>
+          {entry.event} · {entry.parts.length} parts
+          {'\n'}
+          {entry.data}
+        </pre>
+      ))}
+    </div>
+  )
+}
+```
+
+- `log: SSEDebugEvent[]` — `{ event, data, parts, ts }` 의 롤링 버퍼.
+- `clear()` — 버퍼 비우기.
+- 구독은 transport 가 바뀌거나 컴포넌트가 언마운트될 때 자동 해제됩니다.
+
+<Callout type="warning">
+  `transport` 인스턴스를 매 렌더마다 새로 만들면 구독이 매번 재설정됩니다.
+  모듈 스코프 혹은 `useMemo` 로 한 번만 만들어 재사용하세요.
+</Callout>
+
+## 워크플로우: 규격 갭 찾기
+
+1. 앱에 `DefaultChatTransport` + `<SSEDebugPanel>` 을 물리고 시나리오를 돌립니다.
+2. 패널에서 `partCount: 0` 으로 뜨는 이벤트를 찾습니다.
+3. 서버 측에서 해당 이벤트를 canonical 포맷으로 교정하거나, 필요하면
+   `ChatTransport.send` 를 직접 구현해 그 서버 전용 매핑을 넣습니다.
