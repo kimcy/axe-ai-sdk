@@ -12,7 +12,7 @@ axe-ai-sdk 는 세 개의 계층으로 구성됩니다.
 ├──────────────────────────┤
 │   ChatController         │  ← 상태 기계, 요청 격리, 아이들 타임아웃
 ├──────────────────────────┤
-│   ChatTransport          │  ← 백엔드 어댑터 (직접 구현)
+│   ChatTransport          │  ← 백엔드 어댑터 (기본 제공, 커스텀 가능)
 └──────────────────────────┘
 ```
 
@@ -24,6 +24,6 @@ axe-ai-sdk 는 세 개의 계층으로 구성됩니다.
 
 각 계층은 다음 섹션에서 자세히 다룹니다.
 
-- [스트리밍과 SSE](/docs/foundations/streaming)
+- [Server-Sent Events](/docs/foundations/streaming)
 - [전송 계층](/docs/foundations/transports)
-- [메시지 상태 기계](/docs/foundations/state-machine)
+- [메시지 상태](/docs/foundations/state-machine)
