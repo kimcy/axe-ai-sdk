@@ -1,11 +1,11 @@
 ---
-title: 낙관적 UI
+title: UI
 ---
 
-# 낙관적 UI
+# UI
 
 사용자가 전송 버튼을 누르는 즉시, `useChat` 은 네트워크 응답을 기다리지 않고
-**바로** 사용자 메시지를 배열에 추가합니다. 이 낙관적 추가는 `submit` / 
+**바로** 사용자 메시지를 배열에 추가합니다. `submit` /
 `handleSubmit` 호출과 동기적으로 일어나므로, 다음 렌더에서 사용자 메시지가
 바로 보입니다.
 
@@ -22,19 +22,24 @@ title: 낙관적 UI
 `status` 필드로 메시지 렌더를 분기할 수 있습니다.
 
 ```tsx
-{messages.map((m) => (
-  <div
-    key={m.id}
-    className={
-      m.status === 'pending' ? 'opacity-50' :
-      m.status === 'error'   ? 'text-red-600' :
-      m.status === 'aborted' ? 'italic' :
-      ''
-    }
-  >
-    {m.content || (m.status === 'pending' ? '…' : '')}
-  </div>
-))}
+{
+  messages.map((m) => (
+    <div
+      key={m.id}
+      className={
+        m.status === 'pending'
+          ? 'opacity-50'
+          : m.status === 'error'
+            ? 'text-red-600'
+            : m.status === 'aborted'
+              ? 'italic'
+              : ''
+      }
+    >
+      {m.content || (m.status === 'pending' ? '…' : '')}
+    </div>
+  ))
+}
 ```
 
 ## 재전송
@@ -43,5 +48,7 @@ title: 낙관적 UI
 제거**하고 동일한 사용자 메시지로 다시 요청합니다.
 
 ```tsx
-{error && <button onClick={() => reload()}>다시 시도</button>}
+{
+  error && <button onClick={() => reload()}>다시 시도</button>
+}
 ```

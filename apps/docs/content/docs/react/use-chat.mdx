@@ -40,35 +40,35 @@ const {
 
 ## 옵션
 
-| 옵션 | 타입 | 설명 |
-| --- | --- | --- |
-| `transport` | `ChatTransport` | **필수.** 백엔드 어댑터. 선택적으로 `reset()` 을 구현하면 `resetChat()` 에서 호출됩니다. |
-| `initialMessages` | `Message[]` | 초기 메시지 이력 |
-| `idleTimeoutMs` | `number` | 청크 간 최대 간격 (기본 60000) |
-| `persistence` | `PersistenceOptions` | 메시지 이력 영속화 설정 (localStorage 기본) |
-| `conversationIdStorageKey` | `string` | 서버가 발급하는 `conversationId` 를 저장할 스토리지 키. 지정하면 어시스턴트 메시지 `metadata.conversationId` 를 자동 감지 → 저장 → 새로고침 후 복원합니다. |
-| `storage` | `Storage` | `conversationId` 저장소 (기본 `window.localStorage`) |
-| `onError` | `(err) => void` | 에러 발생 시 |
-| `onFinish` | `(message) => void` | 어시스턴트 메시지가 `done`/`error` 로 끝날 때 |
+| 옵션                       | 타입                 | 설명                                                                                                                                                       |
+| -------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `transport`                | `ChatTransport`      | **필수.** 백엔드 어댑터. 선택적으로 `reset()` 을 구현하면 `resetChat()` 에서 호출됩니다.                                                                   |
+| `initialMessages`          | `Message[]`          | 초기 메시지 이력                                                                                                                                           |
+| `idleTimeoutMs`            | `number`             | 청크 간 최대 간격 (기본 60000)                                                                                                                             |
+| `persistence`              | `PersistenceOptions` | 메시지 이력 Persistence 설정 (localStorage 기본)                                                                                                           |
+| `conversationIdStorageKey` | `string`             | 서버가 발급하는 `conversationId` 를 저장할 스토리지 키. 지정하면 어시스턴트 메시지 `metadata.conversationId` 를 자동 감지 → 저장 → 새로고침 후 복원합니다. |
+| `storage`                  | `Storage`            | `conversationId` 저장소 (기본 `window.localStorage`)                                                                                                       |
+| `onError`                  | `(err) => void`      | 에러 발생 시                                                                                                                                               |
+| `onFinish`                 | `(message) => void`  | 어시스턴트 메시지가 `done`/`error` 로 끝날 때                                                                                                              |
 
 ## 반환값
 
-| 이름 | 설명 |
-| --- | --- |
-| `messages` | 현재 메시지 배열 |
-| `input` / `setInput` / `handleInputChange` | 입력 상태 |
-| `handleSubmit(e?, options?)` | `<form onSubmit>` 핸들러 |
-| `submit(content, options?)` | 입력값과 무관하게 메시지 전송 |
-| `stop()` | 진행 중 요청 중단 |
-| `reload(options?)` | 마지막 어시스턴트 응답 재생성 |
-| `setMessages(next)` | 메시지 강제 교체 |
-| `clear()` | 메시지 비우기 + 메시지 영속화 삭제 |
-| `resetChat()` | `clear()` + `conversationId` 초기화 + `transport.reset?.()` 호출 |
-| `conversationId` | 현재 세션 id (`string \| null`) |
-| `setConversationId(id)` | 세션 id 수동 지정 |
-| `status` | `'idle' \| 'submitting' \| 'streaming' \| 'error'` |
-| `isStreaming` | `submitting` 또는 `streaming` 일 때 `true` |
-| `error` | 현재 에러 (`Error \| null`) |
+| 이름                                       | 설명                                                             |
+| ------------------------------------------ | ---------------------------------------------------------------- |
+| `messages`                                 | 현재 메시지 배열                                                 |
+| `input` / `setInput` / `handleInputChange` | 입력 상태                                                        |
+| `handleSubmit(e?, options?)`               | `<form onSubmit>` 핸들러                                         |
+| `submit(content, options?)`                | 입력값과 무관하게 메시지 전송                                    |
+| `stop()`                                   | 진행 중 요청 중단                                                |
+| `reload(options?)`                         | 마지막 어시스턴트 응답 재생성                                    |
+| `setMessages(next)`                        | 메시지 강제 교체                                                 |
+| `clear()`                                  | 메시지 비우기 + 메시지 Persistence 삭제                          |
+| `resetChat()`                              | `clear()` + `conversationId` 초기화 + `transport.reset?.()` 호출 |
+| `conversationId`                           | 현재 세션 id (`string \| null`)                                  |
+| `setConversationId(id)`                    | 세션 id 수동 지정                                                |
+| `status`                                   | `'idle' \| 'submitting' \| 'streaming' \| 'error'`               |
+| `isStreaming`                              | `submitting` 또는 `streaming` 일 때 `true`                       |
+| `error`                                    | 현재 에러 (`Error \| null`)                                      |
 
 ## 메타데이터 전달
 
