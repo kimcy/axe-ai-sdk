@@ -1,43 +1,43 @@
 import { useMemo, useState } from 'react'
 import {
   useChat,
-  DefaultChatTransport,
+  // DefaultChatTransport,
   Markdown,
-  lastUserContent,
-  bearer,
+  // lastUserContent,
+  // bearer,
   // bearerFromCookie, // [B] 용 — 아래 주석 참고
 } from '@axe-ai-sdk/react'
-// import { createMockTransport } from './mock-transport'
+import { createMockTransport } from './mock-transport'
 
-const GATEWAY_URL =
-  'https://ca-chatbot-backend.wittybay-7be49843.koreacentral.azurecontainerapps.io/api/v1/gateway/messages'
+// const GATEWAY_URL =
+//   'https://ca-chatbot-backend.wittybay-7be49843.koreacentral.azurecontainerapps.io/api/v1/gateway/messages'
 
 // const GATEWAY_TOKEN_COOKIE = 'gateway_token' // [B] 용
 
 export function App() {
-  // const transport = useMemo(() => createMockTransport(), [])
-  const transport = useMemo(
-    () =>
-      new DefaultChatTransport({
-        api: GATEWAY_URL,
+  const transport = useMemo(() => createMockTransport(), [])
+  // const transport = useMemo(
+  //   () =>
+  //     new DefaultChatTransport({
+  //       api: GATEWAY_URL,
 
-        // [A] env 폴백 포함 (dev 편의용, 현재 활성)
-        //   VITE_GATEWAY_TOKEN 이 있으면 우선, 없으면 쿠키에서 읽음
-        headers: () => bearer(import.meta.env.VITE_GATEWAY_TOKEN),
+  // [A] env 폴백 포함 (dev 편의용, 현재 활성)
+  //   VITE_GATEWAY_TOKEN 이 있으면 우선, 없으면 쿠키에서 읽음
+  // headers: () => bearer(import.meta.env.VITE_GATEWAY_TOKEN),
 
-        // [B] 쿠키만 쓰는 운영용 — 위 [A] 를 지우고 이 한 줄로 교체
-        // headers: bearerFromCookie(GATEWAY_TOKEN_COOKIE),
+  // [B] 쿠키만 쓰는 운영용 — 위 [A] 를 지우고 이 한 줄로 교체
+  // headers: bearerFromCookie(GATEWAY_TOKEN_COOKIE),
 
-        // 게이트웨이는 `{ content, conversationId? }` 형태의 body 를 기대합니다.
-        // (기본 `interpret: interpretAuto` 가 conversation_created / message_created /
-        //  thinking / message 이벤트를 canonical StreamPart 로 자동 변환합니다.)
-        prepareBody: (request, { conversationId }) => ({
-          content: lastUserContent(request),
-          ...(conversationId ? { conversationId } : {}),
-        }),
-      }),
-    []
-  )
+  // 게이트웨이는 `{ content, conversationId? }` 형태의 body 를 기대합니다.
+  // (기본 `interpret: interpretAuto` 가 conversation_created / message_created /
+  //  thinking / message 이벤트를 canonical StreamPart 로 자동 변환합니다.)
+  // prepareBody: (request, { conversationId }) => ({
+  //   content: lastUserContent(request),
+  //   ...(conversationId ? { conversationId } : {}),
+  // }),
+  // }),
+  // []
+  // )
 
   const [input, setInput] = useState('')
   const [error, setError] = useState<Error | null>(null)
