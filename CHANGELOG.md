@@ -4,6 +4,35 @@ All notable changes to `@axe-ai-sdk/*` packages are documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.3
+
+[compare changes](https://github.com/kimcy/axe-ai-sdk/compare/v0.0.4...v0.0.3)
+
+### 🚀 Features
+
+- 문서 및 설정 업데이트 - 새로운 Bash 명령 추가 및 문서 내용 개선 ([54a989f](https://github.com/kimcy/axe-ai-sdk/commit/54a989f))
+- 문서에서 '영속화'를 'Persistence'로 변경 및 UI 관련 문서 제목 수정 ([d793692](https://github.com/kimcy/axe-ai-sdk/commit/d793692))
+- 게이트웨이 환영 메시지 추가 및 Markdown 렌더링 제목 수정 ([cc96684](https://github.com/kimcy/axe-ai-sdk/commit/cc96684))
+- OpenAI 브라우저 예제 추가 및 환경 변수 이름 변경 ([60bd5ff](https://github.com/kimcy/axe-ai-sdk/commit/60bd5ff))
+- OpenAI 전송 방식 개선 및 커스텀 Transport 생성 함수 추가 ([cff0514](https://github.com/kimcy/axe-ai-sdk/commit/cff0514))
+
+### 💅 Refactors
+
+- App.tsx에서 주석 처리된 코드 정리 및 MockTransport 사용으로 변경 ([0bc6beb](https://github.com/kimcy/axe-ai-sdk/commit/0bc6beb))
+
+### 📖 Documentation
+
+- Update CHANGELOG for v0.0.4 ([e00737f](https://github.com/kimcy/axe-ai-sdk/commit/e00737f))
+- ChatTransport 설명 수정 및 문서 링크 제목 변경 ([0197d0b](https://github.com/kimcy/axe-ai-sdk/commit/0197d0b))
+
+### 🏡 Chore
+
+- Package.json 및 pnpm-lock.yaml 업데이트 - 버전 변경 및 OpenAI 예제 추가 ([d6fd998](https://github.com/kimcy/axe-ai-sdk/commit/d6fd998))
+
+### ❤️ Contributors
+
+- Kimcy <kimcy1@gmail.com>
+
 ## [Unreleased]
 
 ## [0.0.4] - 2026-04-15
