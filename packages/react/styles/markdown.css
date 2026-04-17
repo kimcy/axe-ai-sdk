@@ -2,10 +2,11 @@
  * @axe-ai-sdk/react — Markdown styles
  * Import once in your app:  import '@axe-ai-sdk/react/styles.css'
  *
- * Theme-aware via CSS variables. Defaults to a light theme; automatically
- * switches to dark under `prefers-color-scheme: dark`. To force a theme,
- * set `data-theme="light"` or `data-theme="dark"` on a parent element,
- * or override any `--axe-md-*` variable yourself.
+ * Theme-aware via CSS variables. Defaults to light. To opt into dark,
+ * set `data-theme="dark"` on the `.axe-md` element (or a parent), or
+ * override any `--axe-md-*` variable yourself. OS-level
+ * `prefers-color-scheme` is intentionally ignored so the markdown stays
+ * readable when the host app forces a single theme.
  */
 
 /* ------------------------------------------------------------------ */
@@ -43,26 +44,6 @@
   line-height: 1.65;
   word-wrap: break-word;
   -webkit-font-smoothing: antialiased;
-}
-
-@media (prefers-color-scheme: dark) {
-  .axe-md:not([data-theme='light']) {
-    --axe-md-fg: #e2e8f0;
-    --axe-md-fg-strong: #f8fafc;
-    --axe-md-muted: #94a3b8;
-
-    --axe-md-link: #60a5fa;
-
-    --axe-md-quote-bg: color-mix(in oklch, #60a5fa 8%, transparent);
-    --axe-md-quote-fg: #cbd5e1;
-
-    --axe-md-inline-code-fg: #f9a8d4;
-
-    --axe-md-code-bg: #0b1220;
-    --axe-md-code-fg: #e2e8f0;
-    --axe-md-code-meta-fg: #64748b;
-    --axe-md-code-copy-hover-fg: #60a5fa;
-  }
 }
 
 .axe-md[data-theme='dark'] {
@@ -416,70 +397,6 @@
 }
 
 /* highlight.js — github-dark */
-@media (prefers-color-scheme: dark) {
-  .axe-md:not([data-theme='light']) .hljs {
-    color: #c9d1d9;
-  }
-  .axe-md:not([data-theme='light']) .hljs-doctag,
-  .axe-md:not([data-theme='light']) .hljs-keyword,
-  .axe-md:not([data-theme='light']) .hljs-meta .hljs-keyword,
-  .axe-md:not([data-theme='light']) .hljs-template-tag,
-  .axe-md:not([data-theme='light']) .hljs-template-variable,
-  .axe-md:not([data-theme='light']) .hljs-type,
-  .axe-md:not([data-theme='light']) .hljs-variable.language_ {
-    color: #ff7b72;
-  }
-  .axe-md:not([data-theme='light']) .hljs-title,
-  .axe-md:not([data-theme='light']) .hljs-title.class_,
-  .axe-md:not([data-theme='light']) .hljs-title.class_.inherited__,
-  .axe-md:not([data-theme='light']) .hljs-title.function_ {
-    color: #d2a8ff;
-  }
-  .axe-md:not([data-theme='light']) .hljs-attr,
-  .axe-md:not([data-theme='light']) .hljs-attribute,
-  .axe-md:not([data-theme='light']) .hljs-literal,
-  .axe-md:not([data-theme='light']) .hljs-meta,
-  .axe-md:not([data-theme='light']) .hljs-number,
-  .axe-md:not([data-theme='light']) .hljs-operator,
-  .axe-md:not([data-theme='light']) .hljs-variable,
-  .axe-md:not([data-theme='light']) .hljs-selector-attr,
-  .axe-md:not([data-theme='light']) .hljs-selector-class,
-  .axe-md:not([data-theme='light']) .hljs-selector-id {
-    color: #79c0ff;
-  }
-  .axe-md:not([data-theme='light']) .hljs-regexp,
-  .axe-md:not([data-theme='light']) .hljs-string,
-  .axe-md:not([data-theme='light']) .hljs-meta .hljs-string {
-    color: #a5d6ff;
-  }
-  .axe-md:not([data-theme='light']) .hljs-built_in,
-  .axe-md:not([data-theme='light']) .hljs-symbol {
-    color: #ffa657;
-  }
-  .axe-md:not([data-theme='light']) .hljs-comment,
-  .axe-md:not([data-theme='light']) .hljs-code,
-  .axe-md:not([data-theme='light']) .hljs-formula {
-    color: #8b949e;
-  }
-  .axe-md:not([data-theme='light']) .hljs-name,
-  .axe-md:not([data-theme='light']) .hljs-quote,
-  .axe-md:not([data-theme='light']) .hljs-selector-tag,
-  .axe-md:not([data-theme='light']) .hljs-selector-pseudo {
-    color: #7ee787;
-  }
-  .axe-md:not([data-theme='light']) .hljs-subst {
-    color: #c9d1d9;
-  }
-  .axe-md:not([data-theme='light']) .hljs-addition {
-    color: #aff5b4;
-    background-color: #033a16;
-  }
-  .axe-md:not([data-theme='light']) .hljs-deletion {
-    color: #ffdcd7;
-    background-color: #67060c;
-  }
-}
-
 .axe-md[data-theme='dark'] .hljs {
   color: #c9d1d9;
 }

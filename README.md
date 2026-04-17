@@ -261,7 +261,7 @@ pnpm changelog               # CHANGELOG.md 만 갱신 (commit·tag 안 만듦)
 pnpm release patch           # 위 변경사항이 release 커밋에 함께 포함됨
 ```
 
-> `pnpm release`(무인자)는 changelogen 을 그대로 호출하던 이전 버전과 달리, 이제는 이 스크립트의 alias 입니다. changelogen 의 `--release --push` 는 워크스페이스 패키지의 버전을 건드리지 않아 **루트 / core / react 가 어긋나는 문제**가 있어 폐기됐습니다.
+> `pnpm release`는 changelogen 을 그대로 호출하던 이전 버전과 달리, 이제는 이 스크립트의 alias 입니다. changelogen 의 `--release --push` 는 워크스페이스 패키지의 버전을 건드리지 않아 **루트 / core / react 가 어긋나는 문제**가 있어 폐기됐습니다.
 
 ## License
 
