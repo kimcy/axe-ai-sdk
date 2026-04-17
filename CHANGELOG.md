@@ -4,6 +4,23 @@ All notable changes to `@axe-ai-sdk/*` packages are documented here.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.0.6
+
+[compare changes](https://github.com/kimcy/axe-ai-sdk/compare/v0.0.5...v0.0.6)
+
+### 🩹 Fixes
+
+- Markdown 스타일에서 다크 모드 관련 CSS 변수 제거 및 설명 수정 ([62d78b1](https://github.com/kimcy/axe-ai-sdk/commit/62d78b1))
+- Markdown 테이블 마지막 행의 경계 스타일 제거 ([bae93b3](https://github.com/kimcy/axe-ai-sdk/commit/bae93b3))
+
+### 📖 Documentation
+
+- README.md에 pnpm release 스크립트 사용법 및 변경사항 추가 ([88614f2](https://github.com/kimcy/axe-ai-sdk/commit/88614f2))
+
+### ❤️ Contributors
+
+- Kimcy <kimcy1@gmail.com>
+
 ## v0.0.3
 
 [compare changes](https://github.com/kimcy/axe-ai-sdk/compare/v0.0.4...v0.0.3)
