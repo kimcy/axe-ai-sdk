@@ -81,7 +81,7 @@ type ChatRequest = {
 - `metadata` — `submit(content, { metadata })` 또는 `reload({ metadata })` 에서
   넘긴 임의의 요청 메타데이터.
 
-## 구현 contract
+## 구현
 
 전송 계층을 구현할 때는 아래 세 가지를 꼭 맞춰 주세요.
 
@@ -139,7 +139,7 @@ export function createOpenAITransport(apiKey: string): ChatTransport {
 }
 ```
 
-## 예시: 모의(mock) 전송
+## 예시: Mock 전송
 
 테스트/데모 용도로 서버 없이 스트리밍을 재현할 수 있습니다.
 
