@@ -123,15 +123,12 @@ if (!YES) {
 console.log('\n=== Publish ===')
 sh('pnpm --filter "./packages/*" publish --no-git-checks')
 
-// 6) commit + tag + push — also include CHANGELOG.md if it was modified
-//    (e.g. after running `pnpm changelog` before this script).
+// 6) commit + tag + push — bundle the version bumps with any pre-existing
+//    edits in the working tree (e.g. docs, CHANGELOG.md). `-u` only stages
+//    already-tracked files, so untracked/new files are left alone.
 console.log('\n=== Git ===')
-const toAdd = [...PKG_FILES]
-try {
-  const changelogStatus = shCapture('git status --porcelain CHANGELOG.md')
-  if (changelogStatus) toAdd.push('CHANGELOG.md')
-} catch {}
-sh(`git add ${toAdd.join(' ')}`)
+sh('git status --short')
+sh('git add -u')
 sh(`git commit -m "chore(release): v${next}"`)
 sh(`git tag v${next}`)
 sh(`git push origin main v${next}`)
