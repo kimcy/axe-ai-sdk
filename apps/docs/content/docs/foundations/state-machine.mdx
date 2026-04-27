@@ -1,8 +1,8 @@
 ---
-title: 메시지 상태 기계
+title: 메시지 상태
 ---
 
-# 메시지 상태 기계
+# 메시지 상태
 
 모든 `Message` 는 다음 `status` 중 하나를 가집니다.
 
@@ -13,13 +13,13 @@ pending ──▶ streaming ──▶ done
               └────────▶ aborted
 ```
 
-| 상태 | 의미 |
-| --- | --- |
-| `pending` | 서버로 요청은 보냈으나 아직 첫 토큰이 오지 않음 |
-| `streaming` | 최소 한 개 이상의 `StreamPart` 가 도착해 내용이 쌓이는 중 |
-| `done` | `finish` 이벤트로 정상 종료 |
-| `error` | 전송 계층이 에러를 던졌거나 `{ type: 'error' }` 파트를 받음 |
-| `aborted` | `stop()` 호출로 중단됨 |
+| 상태        | 의미                                                        |
+| ----------- | ----------------------------------------------------------- |
+| `pending`   | 서버로 요청은 보냈으나 아직 첫 토큰이 오지 않음             |
+| `streaming` | 최소 한 개 이상의 `StreamPart` 가 도착해 내용이 쌓이는 중   |
+| `done`      | `finish` 이벤트로 정상 종료                                 |
+| `error`     | 전송 계층이 에러를 던졌거나 `{ type: 'error' }` 파트를 받음 |
+| `aborted`   | `stop()` 호출로 중단됨                                      |
 
 ## 컨트롤러 상태 (`ControllerStatus`)
 
@@ -32,7 +32,7 @@ pending ──▶ streaming ──▶ done
 
 `useChat` 의 `isStreaming` 은 `submitting | streaming` 일 때 `true` 입니다.
 
-## 아이들 타임아웃
+## Idle 타임아웃
 
 컨트롤러는 **청크 간 최대 간격** 기반의 타임아웃을 제공합니다 (총 요청 시간이
 아님). 긴 생성 작업 중에도, 일정 시간 새 청크가 오지 않으면 요청을

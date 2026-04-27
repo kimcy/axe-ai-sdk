@@ -8,7 +8,7 @@ axe-ai-sdk 의 에러는 세 경로로 들어옵니다.
 
 1. **전송 throw** — 어댑터 `send()` 가 예외를 던짐 → `TransportError`
 2. **`error` 스트림 파트** — 서버가 `{ type: 'error', error, code }` 전송
-3. **아이들 타임아웃** — 청크가 일정 시간 오지 않음 → `IdleTimeoutError`
+3. ** Idle 타임아웃** — 청크가 일정 시간 오지 않음 → `IdleTimeoutError`
 
 세 경우 모두 어시스턴트 메시지가 `error` 상태로 전이되고, `useChat` 의
 `error` 값이 채워집니다.
@@ -18,18 +18,20 @@ axe-ai-sdk 의 에러는 세 경로로 들어옵니다.
 ```tsx
 const { messages, error, reload } = useChat({ transport })
 
-{error && (
-  <div role="alert">
-    <p>에러: {error.message}</p>
-    <button onClick={() => reload()}>다시 시도</button>
-  </div>
-)}
+{
+  error && (
+    <div role='alert'>
+      <p>에러: {error.message}</p>
+      <button onClick={() => reload()}>다시 시도</button>
+    </div>
+  )
+}
 ```
 
 `reload()` 는 마지막 어시스턴트 메시지를 제거하고 동일한 사용자 메시지로 다시
 요청합니다. 사용자 입력을 재입력받을 필요가 없습니다.
 
-## 에러 바운더리와의 관계
+## Error Boundary 관계
 
 `useChat` 자체는 에러를 throw 하지 않습니다. 모든 에러는 `error` 상태로
 노출되므로, React Error Boundary 가 아닌 일반적인 조건부 렌더링으로 처리하면
